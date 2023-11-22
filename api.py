@@ -1,4 +1,4 @@
-import itertools
+import itertools as tool
 
 #Return le pseudo du joueur en fonction de son numéro
 def number_to_nickname(player_number):
@@ -26,66 +26,66 @@ def check_column(column_number):
 #Return le tableau avec le jeton placé à la bonne hauteur dans la colone column_number
 def place_token(column_number):
     n = 5
-    while board[n][column_number] == 0:
+    while board[n][column_number] == 0 and n !=-1:
         n += -1
-    board[n+1][column_number] = color_turn
+    board[n+1][column_number] = player_turn_number #player_turn_number est une variable qu'y n'apparait qu'ici, et qu'on peut change comme on veux ; elle indique le numéro du joueur qui doit jouer
     return board
 
-#Check si il y a 4 jetons alignés horizontalement (-) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_h():
     winner = 0
     for check_x, check_y in tool.product(range(4), range(6)):
         n = 0
         stop = False
-        while board[check_y][check_x+n] == board[check_y][check_x] and stop == False:
+        while board[check_y][check_x+n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
                 stop = True
                 winner = board[check_y][check_x]
-    return winner
+    return int(winner)
 
-#Check si il y a 4 jetons alignés verticalement (|) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés verticalement (|) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_v():
     winner = 0
     for check_x, check_y in tool.product(range(7), range(3)):
         n = 0
         stop = False
-        while board[check_y+n][check_x] == board[check_y][check_x] and stop == False:
+        while board[check_y+n][check_x] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
                 stop = True
                 winner = board[check_y][check_x]
-    return winner
+    return int(winner)
 
-#Check si il y a 4 jetons alignés diagonalement (/) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
+#Check si il y a 4 jetons alignés diagonalement (/) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
 def check_victory_dp():
     winner = 0
     for check_x, check_y in tool.product(range(4), range(3)):
         n = 0
         stop = False
-        while board[check_y+n][check_x+n] == board[check_y][check_x] and stop == False:
+        while board[check_y+n][check_x+n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
                 stop = True
                 winner = board[check_y][check_x]
-    return winner
+    return int(winner)
 
-#Check si il y a 4 jetons alignés diagonalement (\) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés diagonalement (\) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_dm():
     winner = 0
     for check_x, check_y in tool.product([3,4,5,6], range(3)):
         n = 0
         stop = False
-        while board[check_y+n][check_x-n] == board[check_y][check_x] and stop == False:
+        while board[check_y+n][check_x-n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
                 stop = True
                 winner = board[check_y][check_x]
-    return winner
+    return int(winner)
 
 #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
 def check_tie():
