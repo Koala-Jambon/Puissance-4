@@ -10,4 +10,4 @@ def check_column(column_number):
         board[n+1][column_number] = color_turn
         return board
     else:
-        return "wrong moove"
+        return False
