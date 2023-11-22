@@ -8,7 +8,9 @@ sock.listen()
 
 client, client_address = sock.accept()
 print(f"Un nouveau gars est arrivé : {client_address}")
-data = client.recv(1024)
-print(data)
-client.close()
-sock.close()
+data = client.recv(1024).decode("utf-8")
+data = data.split()
+if data[0] == "/lobby":
+    print(f"Ajout de {data[1]} au lobby")
+    client.close()
+    sock.close()
