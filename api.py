@@ -20,7 +20,7 @@ def place_token(column_number):
     board[n+1][column_number] = color_turn
     return board
 
-#Check si il y a 4 jetons alignés horizontalement : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés horizontalement (-) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_h():
     winner = 0
     for check_x, check_y in tool.product(range(4), range(6))
@@ -34,7 +34,7 @@ def check_victory_h():
                 winner = board[check_y][check_x]
     return winner
 
-#Check si il y a 4 jetons alignés verticalement : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés verticalement (|) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_v():
     winner = 0
     for check_x, check_y in tool.product(range(7), range(3))
