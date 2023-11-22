@@ -12,5 +12,6 @@ data = client.recv(1024).decode("utf-8")
 data = data.split()
 if data[0] == "/lobby":
     print(f"Ajout de {data[1]} au lobby")
+    client.send(f"{data[1]} is connected to the lobby".encode("utf-8"))
     client.close()
     sock.close()

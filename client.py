@@ -10,6 +10,7 @@ pseudo = inquirer.text("Quel est votre pseudo : ").execute()
 client.send(f"/lobby {pseudo}".encode("utf-8"))
 data = client.recv(1024).decode("utf-8")
 
+print(data)
 if data == f"{pseudo} is connected to the lobby":
     print("We are in !")
 
