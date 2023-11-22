@@ -1,5 +1,16 @@
 import itertools
 
+#Return le pseudo du joueur en fonction de son numéro
+def number_to_nickname(player_number):
+    return player_list[player_number]
+
+#Return le numéro du joueur en fonction de son pseudo
+def nickname_to_number(player_nickname):
+    if str(player_nickname) == player_list[0]:
+        return 1
+    else:
+        return 2
+        
 #Return un tableau de 7x6 0s
 def create_board():
     board = [[0 for x in range(7)] for y in range(6)]
@@ -90,3 +101,4 @@ def change_player_turn(player_who_just_played):
         return 2
     else:
         return 1
+
