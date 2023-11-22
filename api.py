@@ -1,5 +1,8 @@
 import itertools
 
+while True:
+    input(f"It is {number_to_nickname(1)} turn")
+
 #Return le pseudo du joueur en fonction de son numéro
 def number_to_nickname(player_number):
     return player_list[player_number]
@@ -10,7 +13,7 @@ def nickname_to_number(player_nickname):
         return 1
     else:
         return 2
-        
+
 #Return un tableau de 7x6 0s
 def create_board():
     board = [[0 for x in range(7)] for y in range(6)]
@@ -34,7 +37,7 @@ def place_token(column_number):
 #Check si il y a 4 jetons alignés horizontalement (-) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_h():
     winner = 0
-    for check_x, check_y in tool.product(range(4), range(6))
+    for check_x, check_y in tool.product(range(4), range(6)):
         n = 0
         stop = False
         while board[check_y][check_x+n] == board[check_y][check_x] and stop == False:
@@ -48,7 +51,7 @@ def check_victory_h():
 #Check si il y a 4 jetons alignés verticalement (|) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_v():
     winner = 0
-    for check_x, check_y in tool.product(range(7), range(3))
+    for check_x, check_y in tool.product(range(7), range(3)):
         n = 0
         stop = False
         while board[check_y+n][check_x] == board[check_y][check_x] and stop == False:
@@ -62,7 +65,7 @@ def check_victory_v():
 #Check si il y a 4 jetons alignés diagonalement (/) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
 def check_victory_dp():
     winner = 0
-    for check_x, check_y in tool.product(range(4), range(3))
+    for check_x, check_y in tool.product(range(4), range(3)):
         n = 0
         stop = False
         while board[check_y+n][check_x+n] == board[check_y][check_x] and stop == False:
@@ -76,7 +79,7 @@ def check_victory_dp():
 #Check si il y a 4 jetons alignés diagonalement (\) : Return 0 si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_dm():
     winner = 0
-    for check_x, check_y in tool.product([3,4,5,6], range(3))
+    for check_x, check_y in tool.product([3,4,5,6], range(3)):
         n = 0
         stop = False
         while board[check_y+n][check_x-n] == board[check_y][check_x] and stop == False:
@@ -101,4 +104,3 @@ def change_player_turn(player_who_just_played):
         return 2
     else:
         return 1
-
