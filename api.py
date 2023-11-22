@@ -23,10 +23,48 @@ def check_victory_h():
         n = 0
         stop = False
         while board[check_y][check_x+n] == board[check_y][check_x] and stop == False:
-            if n != 4:
+            if n != 3:
+                n += 1
+            else:
+                stop = True
+                winner = board[check_y][check_x]
+    return winner
+
+def check_victory_v():
+    winner = 0
+    for check_x, check_y in tool.product(range(7), range(3))
+        n = 0
+        stop = False
+        while board[check_y+n][check_x] == board[check_y][check_x] and stop == False:
+            if n != 3:
                 n += 1
             else:
                 stop = True
                 winner = board[check_y][check_x]
     return winner
         
+def check_victory_dp():
+    winner = 0
+    for check_x, check_y in tool.product(range(4), range(3))
+        n = 0
+        stop = False
+        while board[check_y+n][check_x+n] == board[check_y][check_x] and stop == False:
+            if n != 3:
+                n += 1
+            else:
+                stop = True
+                winner = board[check_y][check_x]
+    return winner
+
+def check_victory_dm():
+    winner = 0
+    for check_x, check_y in tool.product([3,4,5,6], range(3))
+        n = 0
+        stop = False
+        while board[check_y+n][check_x-n] == board[check_y][check_x] and stop == False:
+            if n != 3:
+                n += 1
+            else:
+                stop = True
+                winner = board[check_y][check_x]
+    return winner
