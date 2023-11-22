@@ -83,3 +83,10 @@ def check_tie():
         if board[5][column_check_number] == 0:
             return False
     return True
+
+#Return le numéro du joueur qui doit jouer ne fonction du joueur qui vient de jouer:
+def change_player_turn(player_who_just_played):
+    if player_who_just_played == 1:
+        return 2
+    else:
+        return 1
