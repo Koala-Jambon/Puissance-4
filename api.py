@@ -1,8 +1,5 @@
 import itertools
 
-while True:
-    input(f"It is {number_to_nickname(1)} turn")
-
 #Return le pseudo du joueur en fonction de son numéro
 def number_to_nickname(player_number):
     return player_list[player_number]
