@@ -117,7 +117,6 @@ while True:
         place_token(moove)
     else :
         moove = int(input(f"Moove not possible !\nIt is {player_turn_nickname} turn ; What column do you want to put your token in?\n"))
-    print(check_victory_v())
     if check_victory_h() != 0:
         print(f"{player_turn_nickname} has won !")
         exit()
