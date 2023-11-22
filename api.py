@@ -75,3 +75,11 @@ def check_victory_dm():
                 stop = True
                 winner = board[check_y][check_x]
     return winner
+
+#Return True si le plateau est plein ; False si le plateau a toujours des cases libres
+def check_tie():
+    number_completed_columns = 0
+    for column_check_number in range(7):
+        if board[5][column_check_number] == 0:
+            return False
+    return True
