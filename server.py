@@ -44,6 +44,14 @@ def handle_client(client, client_address):
             party[p_id] = {"joueurs": [client_address], "jeu": None}
             client.send(f"Partie {p_id}".encode("utf-8"))
             print("OOOK")
+
+        elif data[0] == "/join":
+            try:
+                if client_address not in party[data[1]]["joueurs"]:
+                    party[data[1]]["joueurs"].append(client_address)
+                client.send("Joueur ajouté dans la partie".encode("utf-8"))
+            except KeyError:
+                client.send("Veuillez renseigner un identifiant de partie valide.".encode("utf-8"))
         else:
             print("Aucune commande recevable")
             client.close()
