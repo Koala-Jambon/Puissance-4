@@ -5,6 +5,7 @@ import api
 
 
 class App:
+    
     def __init__(self, player_list, player_number, board, player_turn_nickname):
         self.board = board
         self.player_list = player_list
@@ -52,7 +53,7 @@ class App:
         if api.check_tie(self.board) == True:
             pyxel.text(0, 0, "This game ended on a tie!", 7)
             time.sleep(1)
-            pyxel.quit()
+            pyxel.quit()        
             exit()
 
 
