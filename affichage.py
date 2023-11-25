@@ -128,10 +128,28 @@ class App:
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
             if self.board[draw_y][draw_x] == 0:
-                pyxel.rect(150*draw_x+435, 150*draw_y+435, 150, 150, 0)
+                pyxel.rect(150*draw_x+435, 930-150*draw_y, 150, 150, 1)
             if self.board[draw_y][draw_x] == 1:
-                pyxel.rect(150*draw_x+435, 150*draw_y+435, 150, 150, 1)
+                pyxel.rect(150*draw_x+435, 930-150*draw_y, 150, 150, 8)
             if self.board[draw_y][draw_x] == 2:
-                pyxel.rect(150*draw_x+435, 150*draw_y+435, 150, 150, 2)
-        pyxel.rect(150*(self.choice_position-1)+435, 0, 150, 150, 1)
+                pyxel.rect(150*draw_x+435, 930-150*draw_y, 150, 150, 10)
+        pyxel.rect(150*(self.choice_position-1)+435, 0, 150, 150, 9)
+        if self.check_victory_h() != 0:
+            winner = self.check_victory_h()
+            winner = self.number_to_nickname(winner)
+            pyxel.text(0, 0, f"{winner} has won!", 7)
+        elif self.check_victory_v() != 0:
+            winner = self.check_victory_h()
+            winner = self.number_to_nickname(winner)
+            pyxel.text(0, 0, f"{winner} has won!", 7)
+        elif self.check_victory_dp() != 0:
+            winner = self.check_victory_h()
+            winner = self.number_to_nickname(winner)
+            pyxel.text(0, 0, f"{winner} has won!", 7)
+        elif self.check_victory_dm() != 0:
+            winner = self.check_victory_h()
+            winner = self.number_to_nickname(winner)
+            pyxel.text(0, 0, f"{winner} has won!", 7)
+        elif self.check_tie() == True:
+            pyxel.text(0, 0, "This game ended on a tie!", 7)
 App(1)
