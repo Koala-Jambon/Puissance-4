@@ -1,7 +1,10 @@
 import socket
 import threading
+import time
+
 import api
 import json
+import random
 
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,6 +60,7 @@ def handle_client(client, client_address):
                 # Vérifions si le joueur n'est pas déjà dans une partie
                 if client_address not in party[data[1]]["joueurs"]:
                     party[data[1]]["joueurs"].append(client_address)
+                    lobby[client_address]["partie_id"] = data[1]
                 else:
                     client.send(f"Vous êtes déjà dans la partie {data[1]}. /leave pour la quitter".encode("utf-8"))
 
@@ -64,8 +68,18 @@ def handle_client(client, client_address):
                 # On fait les requetes API pour générer le tableau et on détermine le tour
                 party[data[1]]["jeu"] = {"board": api.board(), "tour": client_address}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
+
             except KeyError:
                 client.send("Veuillez renseigner un identifiant de partie valide.".encode("utf-8"))
+
+        # Et là c'est quand le client est prêt à jouer et qu'il attend
+        elif data[0] == "/wait":
+            p_id = lobby[client_address]["partie_id"]
+            while len(party[p_id]["joueurs"]) != 2:
+                # On attend qu'un joueur rejoigne la partie
+                time.sleep(1)
+
+                jouer(p_id)
     print("Fermeture d'un client")
 
 
