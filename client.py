@@ -93,7 +93,6 @@ class App:
                 else:
                     stop = True
                     winner = self.board[check_y][check_x]
-                print("machin")
         return int(winner)
 
     #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
