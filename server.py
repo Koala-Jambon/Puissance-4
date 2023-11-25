@@ -16,7 +16,7 @@ lobby = {}
 party = {}
 
 
-def handle_client(client, client_address):
+def handle_client(client: socket.socket, client_address):
     print(f"Un nouveau gars est arrivé : {client_address}")
     message = None
     while message != "/quit":
@@ -57,16 +57,17 @@ def handle_client(client, client_address):
         elif data[0] == "/join":
             # Ici le try except essaye de lire les arguments de /join, si il n'y arrive pas il renvoie une erreur
             try:
-                # Vérifions si le joueur n'est pas déjà dans une partie
-                if client_address not in party[data[1]]["joueurs"]:
+                # Vérifions si le joueur n'est pas déjà dans une partie ET qu'il y a moins de 2 joueurs
+                if client_address not in party[data[1]]["joueurs"] and len(party[data[1]]["joueurs"]) < 2:
+
                     party[data[1]]["joueurs"].append(client_address)
                     lobby[client_address]["partie_id"] = data[1]
                 else:
                     client.send(f"Vous êtes déjà dans la partie {data[1]}. /leave pour la quitter".encode("utf-8"))
 
-                # quand il y a 2 joueurs, la partie peut commencer
-                # On fait les requetes API pour générer le tableau et on détermine le tour
-                party[data[1]]["jeu"] = {"board": api.board(), "tour": client_address}
+                if len(party[data[1]]["joueurs"]) == 2:
+                    # On fait les requetes API pour générer le tableau et on détermine le tour
+                    party[data[1]]["jeu"] = {"board": api.board(), "tour": random.choice(party[data[1]]["joueurs"])}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
 
             except KeyError:
@@ -79,16 +80,16 @@ def handle_client(client, client_address):
                 # On attend qu'un joueur rejoigne la partie
                 time.sleep(1)
 
-                jouer(p_id)
+                jouer(p_id, client, client_address)
     print("Fermeture d'un client")
 
 
-def jouer(partie_id):
-
-    for joueur in party[partie_id]["joueurs"]:
-        j_client = lobby[joueur]["client"]
-        j_client.send(json.dumps(party[partie_id]["jeu"]).encode("utf-8"))
-        print(f"Envoyé à {j_client}")
+def jouer(partie_id, client: socket.socket, client_address):
+    client.send(json.dumps(party[partie_id]))
+    while True:
+        data = client.recv(4096).decode("utf-8")
+        print(data)
+        client.send(f"J'ai reçu {data}".encode())
 
 error = False
 while not error:
