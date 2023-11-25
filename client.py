@@ -93,6 +93,7 @@ class App:
                 else:
                     stop = True
                     winner = self.board[check_y][check_x]
+                print("machin")
         return int(winner)
 
     #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
@@ -136,33 +137,17 @@ class App:
             if self.board[draw_y][draw_x] == 2:
                 pyxel.rect(150*draw_x+435, 930-150*draw_y, 150, 150, 10)
         pyxel.rect(150*(self.choice_position-1)+435, 0, 150, 150, 9)
-        if self.check_victory_h() != 0:
-            winner = self.check_victory_h()
-            winner = self.number_to_nickname(winner)
-            pyxel.text(0, 0, f"{winner} has won!", 7)
-            time.sleep(1)
-            exit()
-        elif self.check_victory_v() != 0:
-            winner = self.check_victory_h()
-            winner = self.number_to_nickname(winner)
-            pyxel.text(0, 0, f"{winner} has won!", 7)
-            time.sleep(1)
-            exit()
-        elif self.check_victory_dp() != 0:
-            winner = self.check_victory_h()
-            winner = self.number_to_nickname(winner)
-            pyxel.text(0, 0, f"{winner} has won!", 7)
-            time.sleep(1)
-            exit()
-        elif self.check_victory_dm() != 0:
-            winner = self.check_victory_h()
-            winner = self.number_to_nickname(winner)
-            pyxel.text(0, 0, f"{winner} has won!", 7)
-            time.sleep(1)
-            exit()
-        elif self.check_tie() == True:
+        for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+            if getattr(self, func)() != 0:
+                winner = self.number_to_nickname(getattr(self, func)())
+                pyxel.text(0, 0, f"{winner} has won!", 7)
+                time.sleep(1)
+                pyxel.quit()
+                exit()
+        if self.check_tie() == True:
             pyxel.text(0, 0, "This game ended on a tie!", 7)
             time.sleep(1)
+            pyxel.quit()
             exit()
 
 #Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
