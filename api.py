@@ -1,38 +1,33 @@
 import itertools as tool
 
 #Return le pseudo du joueur en fonction de son numéro
-def number_to_nickname(player_number):
+def number_to_nickname(player_number, player_list):
     return player_list[player_number-1]
 
-#Return le numéro du joueur en fonction de son pseudo
-def nickname_to_number(player_nickname):
+    #Return le numéro du joueur en fonction de son pseudo
+def nickname_to_number(player_nickname, player_list):
     if str(player_nickname) == player_list[0]:
         return 1
     else:
         return 2
 
-#Return un tableau de 7x6 0s
-def create_board():
-    board = [[0 for x in range(7)] for y in range(6)]
-    return board
-
 #Return si la colone column_number est libre ou non
-def check_column(column_number):
+def check_column(column_number, board):
     if board[5][column_number] == 0:
         return True
     else:
         return False
 
 #Return le tableau avec le jeton placé à la bonne hauteur dans la colone column_number
-def place_token(column_number):
+def drop_piece(column_number, board, player_turn_number):
     n = 5
     while board[n][column_number] == 0 and n !=-1:
         n += -1
-    board[n+1][column_number] = player_turn_number #player_turn_number est une variable qu'y n'apparait qu'ici, et qu'on peut change comme on veux ; elle indique le numéro du joueur qui doit jouer
+    board[n+1][column_number] = player_turn_number
     return board
 
 #Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
-def check_victory_h():
+def check_victory_h(board):
     winner = 0
     for check_x, check_y in tool.product(range(4), range(6)):
         n = 0
@@ -46,7 +41,7 @@ def check_victory_h():
     return int(winner)
 
 #Check si il y a 4 jetons alignés verticalement (|) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
-def check_victory_v():
+def check_victory_v(board):
     winner = 0
     for check_x, check_y in tool.product(range(7), range(3)):
         n = 0
@@ -60,7 +55,7 @@ def check_victory_v():
     return int(winner)
 
 #Check si il y a 4 jetons alignés diagonalement (/) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
-def check_victory_dp():
+def check_victory_dp(board):
     winner = 0
     for check_x, check_y in tool.product(range(4), range(3)):
         n = 0
@@ -74,7 +69,7 @@ def check_victory_dp():
     return int(winner)
 
 #Check si il y a 4 jetons alignés diagonalement (\) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
-def check_victory_dm():
+def check_victory_dm(board):
     winner = 0
     for check_x, check_y in tool.product([3,4,5,6], range(3)):
         n = 0
@@ -88,16 +83,15 @@ def check_victory_dm():
     return int(winner)
 
 #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
-def check_tie():
-    number_completed_columns = 0
+def check_tie(board):
     for column_check_number in range(7):
         if board[5][column_check_number] == 0:
             return False
     return True
 
 #Return le numéro du joueur qui doit jouer ne fonction du joueur qui vient de jouer:
-def change_player_turn(player_who_just_played):
-    if player_who_just_played == 1:
+def change_player_turn(player_turn_number):
+    if player_turn_number == 1:
         return 2
     else:
         return 1
