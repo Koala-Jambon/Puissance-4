@@ -6,7 +6,7 @@ import api
 
 class App:
     def __init__(self, player_list, player_number, board):
-        self.board = board()
+        self.board = board
         self.player_turn_number = 1
         self.player_list = player_list
         self.player_number = api.nickname_to_number(player_number, self.player_list)
