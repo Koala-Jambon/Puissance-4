@@ -8,6 +8,7 @@ import random
 
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(("", 62222))
 sock.listen()
 
@@ -78,14 +79,16 @@ def handle_client(client: socket.socket, client_address):
             p_id = lobby[client_address]["partie_id"]
             while len(party[p_id]["joueurs"]) != 2:
                 # On attend qu'un joueur rejoigne la partie
+                print("---ON ATTEND---")
+                print(party)
                 time.sleep(1)
-
-                jouer(p_id, client, client_address)
+            jouer(p_id, client, client_address)
     print("Fermeture d'un client")
 
 
 def jouer(partie_id, client: socket.socket, client_address):
-    client.send(json.dumps(party[partie_id]))
+    print(party)
+    client.send(json.dumps(party[partie_id]).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
         print(data)
@@ -93,8 +96,8 @@ def jouer(partie_id, client: socket.socket, client_address):
 
 error = False
 while not error:
+    print("Waiting for a Client...")
     client, client_address = sock.accept()
-    print("GUY")
-    thread = threading.Thread(target=handle_client, args=(client, client_address)).run()
-
+    threading.Thread(target=handle_client, args=(client, client_address)).start()
+    print("Le thread a été lancé")
 

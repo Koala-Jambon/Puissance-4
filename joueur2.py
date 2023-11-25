@@ -20,9 +20,6 @@ data = client.recv(1024).decode("utf-8")
 
 
 # Et maintenant on joue
-while data != "quit":
-    client.send(f"/wait".encode("utf-8"))
-    data = client.recv(1024).decode("utf-8")
-    data.split()
-    if data[0] == "/jeu":
-        coup = inquirer.number("Sur quelle colonne voulez vous jouer ?").execute()
+client.send(f"/wait".encode("utf-8"))
+data = client.recv(1024).decode("utf-8")
+print(data)
