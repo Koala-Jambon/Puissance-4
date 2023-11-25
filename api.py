@@ -1,5 +1,6 @@
 import itertools as tool
 
+
 #Return le pseudo du joueur en fonction de son numéro
 def number_to_nickname(player_number):
     return player_list[player_number-1]

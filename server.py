@@ -49,6 +49,8 @@ def handle_client(client, client_address):
             try:
                 if client_address not in party[data[1]]["joueurs"]:
                     party[data[1]]["joueurs"].append(client_address)
+                # quand il y a 2 joueurs, la partie peut commencer
+                party[data[1]]["jeu"] = None # On fait les requetes API pour générer le tableau.
                 client.send("Joueur ajouté dans la partie".encode("utf-8"))
             except KeyError:
                 client.send("Veuillez renseigner un identifiant de partie valide.".encode("utf-8"))
