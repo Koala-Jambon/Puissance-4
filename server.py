@@ -68,7 +68,12 @@ def handle_client(client: socket.socket, client_address):
 
                 if len(party[data[1]]["joueurs"]) == 2:
                     # On fait les requetes API pour générer le tableau et on détermine le tour
-                    party[data[1]]["jeu"] = {"board": api.board(), "tour": random.choice(party[data[1]]["joueurs"])}
+                    tour = list(random.choice(party[data[1]]["joueurs"]))
+                    tour.append(lobby[tuple(tour)]["pseudo"])
+                    """
+                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": ["127.0.0.1", 45512, "ddd"]}}
+                    """
+                    party[data[1]]["jeu"] = {"board": api.board(), "tour": tour}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
 
             except KeyError:
