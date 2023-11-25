@@ -93,6 +93,13 @@ def check_victory_dm(board):
                 winner = board[check_y][check_x]
     return int(winner)
 
+def check_endgame(board):
+    for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+        if getattr(func)(board) != 0:
+            return True
+    if check_tie(board) == True:
+        return True
+            
 #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
 def check_tie(board):
     for column_check_number in range(7):
