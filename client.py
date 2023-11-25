@@ -26,8 +26,9 @@ class App:
                                                                                                self.board) == True:
                 api.drop_piece(self.choice_position - 1, self.board, self.player_turn_number)
                 self.player_turn_number = api.change_player_turn(self.player_turn_number)
+                #Envoie self.choice_position au serveur et récupère toute les infos du serv                                                                                  
                 self.choice_position = 0
-                # Send self.board to the other player
+                
         else:
             # Waiting for the other player to send a message then self.draw()
             pass
