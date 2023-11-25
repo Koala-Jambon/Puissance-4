@@ -58,4 +58,4 @@ class App:
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"],
-    "Freud", [le plateau est là])  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
+    "Freud", "LeBoard", "Nickname du joueur qui doit jouer")  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
