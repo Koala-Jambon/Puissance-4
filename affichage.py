@@ -3,10 +3,11 @@ import time
 import itertools as tool
 
 class App:
-    def __init__(self, player_number):
+    def __init__(self, player_list, player_number):
         self.board = [[0 for x in range(7)] for y in range(6)]
         self.player_turn_number = 1
-        self.player_number = player_number
+        self.player_list = player_list        
+        self.player_number = self.nickname_to_number(player_number)
         self.choice_position = 0 
         self.pause = False
         pyxel.init(1920, 1080, title = "Online Power 4")
@@ -35,7 +36,7 @@ class App:
         n = 5
         while self.board[n][column_number] == 0 and n !=-1:
             n += -1
-        self.board[n+1][column_number] = self.player_turn_number #player_turn_number est une variable qu'y n'apparait qu'ici, et qu'on peut change comme on veux ; elle indique le numéro du joueur qui doit jouer
+        self.board[n+1][column_number] = self.player_turn_number
         return self.board
 
     #Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
@@ -108,6 +109,7 @@ class App:
         else:
             return 1
         
+    #Si le joueur qui doit jouer correspond au joueur sur ce client, alors il joue sinon il attends que l'autre joueur face une quelquonque action
     def update(self):
         if self.player_turn_number == self.player_number:
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0,1,2,3,4,5,6]:
@@ -123,7 +125,7 @@ class App:
         else:
             #Waiting for the other player to send a message then self.draw()
             pass
-
+    #Peut importe si le joueur doit jouer ou non, il dessine le tableau de jeu et vérifie si il y a un gagnant
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
@@ -138,18 +140,30 @@ class App:
             winner = self.check_victory_h()
             winner = self.number_to_nickname(winner)
             pyxel.text(0, 0, f"{winner} has won!", 7)
+            time.sleep(1)
+            exit()
         elif self.check_victory_v() != 0:
             winner = self.check_victory_h()
             winner = self.number_to_nickname(winner)
             pyxel.text(0, 0, f"{winner} has won!", 7)
+            time.sleep(1)
+            exit()
         elif self.check_victory_dp() != 0:
             winner = self.check_victory_h()
             winner = self.number_to_nickname(winner)
             pyxel.text(0, 0, f"{winner} has won!", 7)
+            time.sleep(1)
+            exit()
         elif self.check_victory_dm() != 0:
             winner = self.check_victory_h()
             winner = self.number_to_nickname(winner)
             pyxel.text(0, 0, f"{winner} has won!", 7)
+            time.sleep(1)
+            exit()
         elif self.check_tie() == True:
             pyxel.text(0, 0, "This game ended on a tie!", 7)
-App(1)
+            time.sleep(1)
+            exit()
+
+#Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
+App(["Freud", "Karl"], "Freud")#Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
