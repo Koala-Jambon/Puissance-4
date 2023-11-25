@@ -5,8 +5,8 @@ import api
 
 
 class App:
-    def __init__(self, player_list, player_number):
-        self.board = api.board()
+    def __init__(self, player_list, player_number, board):
+        self.board = board()
         self.player_turn_number = 1
         self.player_list = player_list
         self.player_number = api.nickname_to_number(player_number, self.player_list)
@@ -58,4 +58,4 @@ class App:
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"],
-    "Freud")  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
+    "Freud", [le plateau est là])  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
