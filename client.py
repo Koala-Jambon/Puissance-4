@@ -62,5 +62,7 @@ class App:
             
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
-App(["Freud", "Karl"],
-    "IP DU JOUEUR ICI", api.board(), "Karl")  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
+App(["Freud", "Karl"], #Liste des IPs
+    "IP DU JOUEUR ICI", #IP DU joueur qui fait tourner ce code
+    api.board(), #Création du tableau, ici il est vierge
+    "Karl") #Ip du joueur qui doit jouer
