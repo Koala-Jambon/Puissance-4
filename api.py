@@ -1,22 +1,13 @@
 import itertools as tool
 
-#Return le pseudo du joueur en fonction de son numéro
-def number_to_nickname(player_number, player_list):
-    return player_list[player_number-1]
-
-#Return le numéro du joueur en fonction de son pseudo
-def nickname_to_number(player_nickname, player_list):
-    if str(player_nickname) == player_list[0]:
-        return 1
-    else:
-        return 2
-
+#Return le numéro du joueur en fonction de son IP
 def ip_to_number(player_ip, player_ip_list):
     if player_ip == player_ip_list[0]:
         return 1
     else:
         return 2
-
+        
+#Return l'IP du joueur en fonction de son numéro
 def number_to_ip(player_number, player_ip_list):
     return player_ip_list[player_number-1]
 
