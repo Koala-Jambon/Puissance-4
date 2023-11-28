@@ -92,6 +92,7 @@ def handle_client(client: socket.socket, client_address):
 
 
 def jouer(partie_id, client: socket.socket, client_address):
+    # Une fois que la partie est crée et que les deux joueurs sont dedans
     print(party)
     client.send(json.dumps(party[partie_id]).encode("utf-8"))
     while True:
