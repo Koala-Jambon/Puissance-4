@@ -24,8 +24,9 @@ data = client.recv(4096).decode("utf-8")
 print(data)
 
 
-while True:
-    cmd = input(f"{pseudo}>").encode("utf-8")
+while data != "error":
+    print("Sur quelle colonne voulez vous jouer ?")
+    cmd = inquirer.number("Numéro colonne [0-6]").execute().encode("utf-8")
     client.send(cmd)
     data = client.recv(4096).decode("utf-8")
     print(data)

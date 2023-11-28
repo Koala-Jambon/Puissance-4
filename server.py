@@ -68,10 +68,12 @@ def handle_client(client: socket.socket, client_address):
 
                 if len(party[data[1]]["joueurs"]) == 2:
                     # On fait les requetes API pour générer le tableau et on détermine le tour
-                    tour = list(random.choice(party[data[1]]["joueurs"]))
-                    tour.append(lobby[tuple(tour)]["pseudo"])
+                    tour = [random.choice(party[data[1]]["joueurs"])]
+                    # On ajoute le pseudo
+                    tour.append(lobby[tour[0]]["pseudo"])
+                    # On détermine leurs numéros
                     """
-                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": ["127.0.0.1", 45512, "ddd"]}}
+                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd"]}}
                     """
                     party[data[1]]["jeu"] = {"board": api.board(), "tour": tour}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
@@ -94,10 +96,29 @@ def handle_client(client: socket.socket, client_address):
 def jouer(partie_id, client: socket.socket, client_address):
     # Une fois que la partie est crée et que les deux joueurs sont dedans
     print(party)
+    board = party[partie_id]["jeu"]["board"]
     client.send(json.dumps(party[partie_id]).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
-        print(data)
+        print(party)
+        if client_address != party[partie_id]["jeu"]["tour"][0]:
+            client.send("Error : Pas ton tour connard")
+            continue
+        try:
+
+            colonne = int(data)
+            if colonne < 0:
+                colonne = 0
+            if colonne > 6:
+                colonne = 6
+
+            if api.check_column(column_number=colonne, board=board):
+                api.drop_piece(column_number=colonne, board=board, player_turn_number=1)
+
+        except ValueError:
+            client.send(f"Error : veuillez rentrer un vrai numéro".encode())
+
+
         client.send(f"J'ai reçu {data}".encode())
 
 error = False
