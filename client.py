@@ -25,7 +25,7 @@ class App:
                 self.choice_position += -1
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and api.check_column(self.choice_position - 1,self.board) == True:
                 api.drop_piece(self.choice_position - 1, self.board, self.player_turn_number)
-                #self.player_turn_number = api.change_player_turn(self.player_turn_number)
+                self.player_turn_number = api.change_player_turn(self.player_turn_number)
                 #Envoie self.choice_position au serveur et récupère toute les infos du serv                                                                                  
                 self.choice_position = 0
         elif self.end == False:
@@ -51,15 +51,8 @@ class App:
                 pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 8)
             else:
                 pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 10)
-        for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-            if getattr(api, func)(self.board) != 0:
-                winner = api.number_to_nickname(getattr(api, func)(self.board), self.player_list)
-                pyxel.text(960, 540, f"{winner} has won!", 7)
-                self.end = True
-        if api.check_tie(self.board) == True:
-            pyxel.text(960, 540, "This game ended on a tie!", 7)
-            self.end = True
-            
+        if self.end == True:
+            pyxel.text(960, 540, f"La partie est terminée", 7)
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"], #Liste des IPs
