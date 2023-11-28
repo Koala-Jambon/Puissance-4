@@ -18,7 +18,7 @@ def ip_to_number(player_ip, player_ip_list):
         return 2
 
 def number_to_ip(player_number, player_ip_list):
-    return player_ip_list[player_number]
+    return player_ip_list[player_number-1]
 
 #Return si la colone column_number est libre ou non
 def check_column(column_number, board):

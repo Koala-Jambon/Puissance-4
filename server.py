@@ -72,6 +72,7 @@ def handle_client(client: socket.socket, client_address):
                     # On ajoute le pseudo
                     tour.append(lobby[tour[0]]["pseudo"])
                     # On détermine leurs numéros
+                    api.ip_to_number()
                     """
                     {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd"]}}
                     """
