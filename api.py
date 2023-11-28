@@ -35,14 +35,12 @@ def check_victory_h(board):
     winner = 0
     for check_x, check_y in tool.product(range(4), range(6)):
         n = 0
-        stop = False
         while board[check_y][check_x+n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
-                stop = True
                 winner = board[check_y][check_x]
-    return int(winner)
+                return int(winner)
 
 #Check si il y a 4 jetons alignés verticalement (|) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_v(board):
