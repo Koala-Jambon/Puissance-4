@@ -58,42 +58,36 @@ def check_victory_v(board):
     winner = 0
     for check_x, check_y in tool.product(range(7), range(3)):
         n = 0
-        stop = False
-        while board[check_y+n][check_x] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
+        while board[check_y+n][check_x] == board[check_y][check_x] and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
-                stop = True
                 winner = board[check_y][check_x]
-    return int(winner)
+                return int(winner)
 
 #Check si il y a 4 jetons alignés diagonalement (/) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
 def check_victory_dp(board):
     winner = 0
     for check_x, check_y in tool.product(range(4), range(3)):
         n = 0
-        stop = False
-        while board[check_y+n][check_x+n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
+        while board[check_y+n][check_x+n] == board[check_y][check_x] and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
-                stop = True
                 winner = board[check_y][check_x]
-    return int(winner)
+                return int(winner)
 
 #Check si il y a 4 jetons alignés diagonalement (\) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_dm(board):
     winner = 0
     for check_x, check_y in tool.product([3,4,5,6], range(3)):
         n = 0
-        stop = False
-        while board[check_y+n][check_x-n] == board[check_y][check_x] and stop == False and board[check_y][check_x] != 0:
+        while board[check_y+n][check_x-n] == board[check_y][check_x] and board[check_y][check_x] != 0:
             if n != 3:
                 n += 1
             else:
-                stop = True
                 winner = board[check_y][check_x]
-    return int(winner)
+                return int(winner)
 
 #Check si la game doit s'arrêter, soit à cause d'une win ou d'une tie ; Return True si la game doit s'arrêter ; Return False si la Game doit continuer 
 def check_endgame(board):
