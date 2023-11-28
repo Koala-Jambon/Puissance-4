@@ -69,12 +69,16 @@ def handle_client(client: socket.socket, client_address):
                 if len(party[data[1]]["joueurs"]) == 2:
                     # On fait les requetes API pour générer le tableau et on détermine le tour
                     tour = [random.choice(party[data[1]]["joueurs"])]
+
+                    # On détermine leurs numéros
+                    # j1 = api.ip_to_number(party[data[1]]["joueurs"][0], party[data[1]]["joueurs"])
+                    # j2 = api.ip_to_number(party[data[1]]["joueurs"][1], party[data[1]]["joueurs"])
+
                     # On ajoute le pseudo
                     tour.append(lobby[tour[0]]["pseudo"])
-                    # On détermine leurs numéros
-                    api.ip_to_number()
+
                     """
-                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd"]}}
+                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd", 1]}}
                     """
                     party[data[1]]["jeu"] = {"board": api.board(), "tour": tour}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
