@@ -35,7 +35,7 @@ class App:
             pyxel.quit()
             exit()
 
-    # Peut importe si le joueur doit jouer ou non, il dessine le tableau de jeu et vérifie si il y a un gagnant
+    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu et vérifie si il y a un gagnant
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
