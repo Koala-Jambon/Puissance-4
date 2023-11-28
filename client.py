@@ -5,10 +5,11 @@ import api
 
 
 class App:
-    def __init__(self, player_list, player_number):
-        self.board = api.board()
-        self.player_turn_number = 1
+    
+    def __init__(self, player_list, player_number, board, player_turn_nickname):
+        self.board = board
         self.player_list = player_list
+        self.player_turn_number = api.nickname_to_number(player_turn_nickname, self.player_list)
         self.player_number = api.nickname_to_number(player_number, self.player_list)
         self.choice_position = 0
         self.pause = False
@@ -25,8 +26,9 @@ class App:
                                                                                                self.board) == True:
                 api.drop_piece(self.choice_position - 1, self.board, self.player_turn_number)
                 self.player_turn_number = api.change_player_turn(self.player_turn_number)
+                #Envoie self.choice_position au serveur et récupère toute les infos du serv                                                                                  
                 self.choice_position = 0
-                # Send self.board to the other player
+                
         else:
             # Waiting for the other player to send a message then self.draw()
             pass
@@ -52,10 +54,10 @@ class App:
         if api.check_tie(self.board) == True:
             pyxel.text(0, 0, "This game ended on a tie!", 7)
             time.sleep(1)
-            pyxel.quit()
+            pyxel.quit()        
             exit()
 
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"],
-    "Freud")  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
+    "Freud", "LeBoard", "Nickname du joueur qui doit jouer")  # Ici la ligne représente la liste des joueurs, donnée par le serveur ; le "Freud" lui représente le pseudo du joueur sur lequel tourne ce code.
