@@ -25,4 +25,4 @@ while data != "quit":
     data = client.recv(1024).decode("utf-8")
     data.split()
     if data[0] == "/jeu":
-        coup = inquirer.number("Sur quelle colonne voulez vous jouer ?").execute()
+        coup = inquirer.number("Sur quelle colonne voulez-vous jouer ?").execute()
