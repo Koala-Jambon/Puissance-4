@@ -1,35 +1,28 @@
 import itertools as tool
 
-
-# Return le pseudo du joueur en fonction de son numéro
+#Return le pseudo du joueur en fonction de son numéro
 def number_to_nickname(player_number, player_list):
     return player_list[player_number-1]
 
-    # Return le numéro du joueur en fonction de son pseudo
-
-
+#Return le numéro du joueur en fonction de son pseudo
 def nickname_to_number(player_nickname, player_list):
     if str(player_nickname) == player_list[0]:
         return 1
     else:
         return 2
 
-    # Return si la colone column_number est libre ou non
-
-
-def board():
-    # Retourne le tableau de jeu
-    return [[0 for _ in range(7)] for _ in range(6)]
-
+#Return si la colone column_number est libre ou non
 def check_column(column_number, board):
     if board[5][column_number] == 0:
         return True
     else:
         return False
 
-# Return le tableau avec le jeton placé à la bonne hauteur dans la colone column_number
+#Return le teableau de jeu
+def board():
+    return [[0 for _ in range(7)] for _ in range(6)]
 
-
+#Return le tableau avec le jeton placé à la bonne hauteur dans la colone column_number
 def drop_piece(column_number, board, player_turn_number):
     n = 5
     while board[n][column_number] == 0 and n !=-1:
@@ -37,7 +30,7 @@ def drop_piece(column_number, board, player_turn_number):
     board[n+1][column_number] = player_turn_number
     return board
 
-# Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
+#Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
 def check_victory_h(board):
     winner = 0
     for check_x, check_y in tool.product(range(4), range(6)):
