@@ -3,7 +3,6 @@ import time
 import itertools as tool
 import api
 
-
 class App:
     
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
