@@ -86,7 +86,7 @@ def check_victory_dm(board):
                 winner = board[check_y][check_x]
     return int(winner)
 
-#Check si la game doit s'arrêter, soit à cause d'une win ou d'une tie ; Return True si la game doit s'arrêter ; Retrun False si la Game est fini
+#Check si la game doit s'arrêter, soit à cause d'une win ou d'une tie ; Return True si la game doit s'arrêter ; Return False si la Game doit continuer 
 def check_endgame(board):
     for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
         if getattr(func)(board) != 0:
