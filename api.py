@@ -11,6 +11,15 @@ def nickname_to_number(player_nickname, player_list):
     else:
         return 2
 
+def ip_to_number(player_ip, player_ip_list):
+    if player_ip == player_ip_list[0]:
+        return 1
+    else:
+        return 2
+
+def number_to_ip(player_number, player_ip_list):
+    return player_ip_list[player_number]
+
 #Return si la colone column_number est libre ou non
 def check_column(column_number, board):
     if board[5][column_number] == 0:
@@ -107,3 +116,4 @@ def change_player_turn(player_turn_number):
         return 2
     else:
         return 1
+
