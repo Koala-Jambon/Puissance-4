@@ -6,11 +6,11 @@ import api
 
 class App:
     
-    def __init__(self, player_ip_list, player_number, board, player_turn_nickname):
+    def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
         self.end = False
         self.board = board
         self.player_ip_list = player_ip_list
-        self.player_turn_number = api.ip_to_number(player_turn_nickname, self.player_ip_list)
+        self.player_turn_number = api.ip_to_number(player_turn_ip, self.player_ip_list)
         self.player_number = api.ip_to_number(player_ip, self.player_ip_list)
         self.choice_position = 0
         self.pause = False
