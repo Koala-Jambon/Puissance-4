@@ -103,13 +103,14 @@ def jouer(partie_id, client: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    client.send(json.dumps(party[partie_id]).encode("utf-8"))
+    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]}
+    client.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
         print(party)
         if client_address != game.player_turn():
             print(f"left {client_address} // right {game.player_turn()}")
-            client.send("Error : Pas ton tour connard")
+            client.send("Error : Pas ton tour connard".encode("utf-8"))
             # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
             continue
         try:
