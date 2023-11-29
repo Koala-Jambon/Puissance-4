@@ -1,3 +1,4 @@
+import json
 import socket
 from InquirerPy import inquirer
 
@@ -30,3 +31,7 @@ while data != "error":
     client.send(cmd)
     data = client.recv(4096).decode("utf-8")
     print(data)
+    data = json.loads(data)
+    if "/wait" in data["message"]:
+        print("ON ATTEND")
+        client.send("/wait".encode("utf-8"))
