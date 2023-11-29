@@ -21,7 +21,7 @@ class App:
                 self.choice_position += -1
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
-                self.player_turn_number = self.game.change_player_turn()
+                self.player_turn_number = self.game.player_turn_number
                 #Envoie self.choice_position au serveur et récupère toute les infos du serv                                                                                  
                 self.choice_position = 0
         elif self.end == False:

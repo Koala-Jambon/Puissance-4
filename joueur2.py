@@ -23,3 +23,10 @@ data = client.recv(1024).decode("utf-8")
 client.send(f"/wait".encode("utf-8"))
 data = client.recv(1024).decode("utf-8")
 print(data)
+
+while data != "error":
+    print("Sur quelle colonne voulez vous jouer ?")
+    cmd = inquirer.number("Numéro colonne [0-6]").execute().encode("utf-8")
+    client.send(cmd)
+    data = client.recv(4096).decode("utf-8")
+    print(data)
