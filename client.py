@@ -6,13 +6,10 @@ import api
 class App:
     
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
+        self.game = api.Game(player_ip_list, board, player_turn_ip)
         self.end = False
-        self.board = board
-        self.player_ip_list = player_ip_list
-        self.player_turn_number = api.ip_to_number(player_turn_ip, self.player_ip_list)
-        self.player_number = api.ip_to_number(player_ip, self.player_ip_list)
+        self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
-        self.pause = False
         pyxel.init(1920, 1080, title="Online Power 4")
         pyxel.run(self.update, self.draw)
 
@@ -22,9 +19,9 @@ class App:
                 self.choice_position += 1
             elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
                 self.choice_position += -1
-            elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and api.check_column(self.choice_position - 1,self.board) == True:
-                api.drop_piece(self.choice_position - 1, self.board, self.player_turn_number)
-                self.player_turn_number = api.change_player_turn(self.player_turn_number)
+            elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
+                self.game.drop_piece(self.choice_position - 1)
+                self.player_turn_number = self.game.change_player_turn()
                 #Envoie self.choice_position au serveur et récupère toute les infos du serv                                                                                  
                 self.choice_position = 0
         elif self.end == False:
