@@ -50,12 +50,13 @@ class Game:
         winner = 0
         for check_x, check_y in tool.product(range(4), range(6)):
             n = 0
-            while self.board[check_y][check_x+n] == self.board[check_y][check_x] and stop == False and self.board[check_y][check_x] != 0:
+            while self.board[check_y][check_x+n] == self.board[check_y][check_x] and self.board[check_y][check_x] != 0:
                 if n != 3:
                     n += 1
                 else:
                     winner = self.board[check_y][check_x]
                     return int(winner)
+        return False
     
     #Check si il y a 4 jetons alignés verticalement (|) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
     def check_victory_v(self):
@@ -68,6 +69,7 @@ class Game:
                 else:
                     winner = self.board[check_y][check_x]
                     return int(winner)
+        return False
     
     #Check si il y a 4 jetons alignés diagonalement (/) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.      
     def check_victory_dp(self):
@@ -80,6 +82,7 @@ class Game:
                 else:
                     winner = self.board[check_y][check_x]
                     return int(winner)
+        return False
     
     #Check si il y a 4 jetons alignés diagonalement (\) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
     def check_victory_dm(self):
@@ -92,14 +95,17 @@ class Game:
                 else:
                     winner = self.board[check_y][check_x]
                     return int(winner)
+        return False
     
     #Check si la game doit s'arrêter, soit à cause d'une win ou d'une tie ; Return True si la game doit s'arrêter ; Return False si la Game doit continuer 
     def check_endgame(self):
         for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-            if getattr(func)() != 0:
+            if getattr(self, func)():
                 return True
         if self.check_tie() == True:
             return True
+        return False
+
                 
     #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
     def check_tie(self):
