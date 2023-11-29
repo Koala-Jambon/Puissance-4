@@ -76,16 +76,6 @@ client.send(f"/wait".encode("utf-8"))
 data = client.recv(4096).decode("utf-8")
 print(data)
 
-
-"""
-while data != "error":
-    print("Sur quelle colonne voulez vous jouer ?")
-    cmd = inquirer.number("Numéro colonne [0-6]").execute().encode("utf-8")
-    client.send(cmd)
-    data = client.recv(4096).decode("utf-8")
-    print(data)
-"""
-
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"], #Liste des IPs
     "IP DU JOUEUR ICI", #IP DU joueur qui fait tourner ce code
