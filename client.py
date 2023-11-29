@@ -19,6 +19,7 @@ class App:
         pyxel.init(int(1920/size), int(1080/size), title="Online Power 4")
         pyxel.run(self.update, self.draw)
 
+    # Check if the player has played/received a moove
     def update(self):
         if (self.game.player_turn_number == self.player_number and self.end == False):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
@@ -41,18 +42,21 @@ class App:
                     self.game.change_player_turn()
                 self.choice_position = 0
         elif self.end == False:
+            self.draw()
             # On attend que l'autre joueur joue
-            client.send(f"/wait {self.game.board}".encode("utf-8"))
+            client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
             # On update le board
             self.game.board = data["board"]
+            print(data)
+            print("j'ai fini d'attendre")
         else:
             time.sleep(3)
             pyxel.quit()
             exit()
 
-    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu
+    # Draws the board
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
@@ -93,7 +97,7 @@ data = client.recv(4096).decode("utf-8")
 print(data)
 data = json.loads(data)
 
-App(data["joueurs"], #Liste des IPs
-    data["you"], #IP DU joueur qui fait tourner ce code
-    data["board"], #Tableau de jeu
-    data["tour"]) #Ip du joueur qui doit jouer
+App(data["joueurs"],# Ip List
+    data["you"],# Ip of the computer which is running this code
+    data["board"],# Current state of the board(normally it's blank)
+    data["tour"])# Ip of the player who has to play
