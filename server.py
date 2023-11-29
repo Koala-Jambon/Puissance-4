@@ -108,6 +108,7 @@ def jouer(partie_id, client: socket.socket, client_address):
         print(party)
         if client_address != party[partie_id]["jeu"]["tour"][0]:
             client.send("Error : Pas ton tour connard")
+            # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
             continue
         try:
 
