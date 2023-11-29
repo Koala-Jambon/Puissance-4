@@ -40,11 +40,12 @@ class App:
                 self.choice_position = 0
         elif self.end == False:
             # On attend que l'autre joueur joue
-            client.send("/wait".encode("utf-8"))
+            client.send(f"/wait {self.game.board}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
             # On update le board
             self.game.board = data["board"]
+            print("OK")
         else:
             time.sleep(3)
             pyxel.quit()

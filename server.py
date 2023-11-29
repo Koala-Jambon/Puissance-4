@@ -109,7 +109,14 @@ def jouer(partie_id, client: socket.socket, client_address):
     while True:
         data = client.recv(4096).decode("utf-8")
         if "/wait" in data:
-            
+            data = data.split(" ", 1)
+            print(data[1])
+            board = list(data[1])
+            while game.board == board:
+                time.sleep(1)
+
+            client.send(json.dumps({"board": game.board}).encode("utf-8"))   
+
 
         if "/play" in data:
             print(party)
