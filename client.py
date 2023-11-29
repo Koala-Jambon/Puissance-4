@@ -2,6 +2,7 @@ import pyxel
 import time
 import itertools as tool
 import api
+import json
 
 import socket
 from InquirerPy import inquirer
@@ -29,10 +30,23 @@ class App:
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 #Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
+                client.send(f"/play {self.choice_position-1}".encode("utf-8"))
+                # On attend la réponse du serveur
+                data = client.recv(4096).decode("utf-8")
+                data = json.loads(data)
+                self.game.board = data["board"]
+                if "/wait" in data["message"]:
+                    self.wait = True
+                else:
+                    self.game.change_player_turn()
                 self.choice_position = 0
         elif self.end == False:
-            # Waiting for the other player to send a message then self.draw()
-            pass
+            # On attend que l'autre joueur joue
+            client.send(f"/wait {self.game.board}".encode("utf-8"))
+            data = client.recv(4096).decode("utf-8")
+            data = json.loads(data)
+            # On update le board
+            self.game.board = data["board"]
         else:
             time.sleep(3)
             pyxel.quit()
@@ -58,7 +72,7 @@ class App:
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
-client.connect(("127.0.0.1", 62222))
+client.connect(("172.16.122.1", 62222))
 
 print("Connexion au lobby...")
 pseudo = inquirer.text("Quel est votre pseudo : ").execute()
@@ -77,9 +91,9 @@ print(data)
 client.send(f"/wait".encode("utf-8"))
 data = client.recv(4096).decode("utf-8")
 print(data)
+data = json.loads(data)
 
-# Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
-App(["Freud", "Karl"], #Liste des IPs
-    "IP DU JOUEUR ICI", #IP DU joueur qui fait tourner ce code
-    api.board(), #Création du tableau, ici il est vierge
-    "Karl") #Ip du joueur qui doit jouer
+App(data["joueurs"], #Liste des IPs
+    data["you"], #IP DU joueur qui fait tourner ce code
+    data["board"], #Tableau de jeu
+    data["tour"]) #Ip du joueur qui doit jouer
