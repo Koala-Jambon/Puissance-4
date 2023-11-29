@@ -3,6 +3,9 @@ import time
 import itertools as tool
 import api
 
+import socket
+from InquirerPy import inquirer
+
 class App:
     
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
@@ -10,18 +13,20 @@ class App:
         self.end = False
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
-        pyxel.init(1920, 1080, title="Online Power 4")
+        pyxel.init(1920/size, 1080/size, title="Online Power 4")
         pyxel.run(self.update, self.draw)
 
     def update(self):
         if (self.game.player_turn_number == self.player_number and self.end == False):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                 self.choice_position += 1
+                #Envoie (self.choice_position-1) au serveur
             elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
                 self.choice_position += -1
+                #Envoie (self.choice_position-1) au serveur
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
-                #Envoie self.choice_position au serveur et récupère toute les infos du serv
+                #Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
                 self.choice_position = 0
         elif self.end == False:
             # Waiting for the other player to send a message then self.draw()
@@ -31,23 +36,45 @@ class App:
             pyxel.quit()
             exit()
 
-    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu et vérifie si il y a un gagnant
+    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
-            pyxel.rect(150 * draw_x + 435, 930 - 150 * draw_y, 150, 150, 1)
+            pyxel.rect((150 * draw_x + 435)/size, (930 - 150 * draw_y)/size, 150/size, 150/size, 1)
             if self.board[draw_y][draw_x] == 0:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 0)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 0)
             if self.board[draw_y][draw_x] == 1:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 8)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 8)
             if self.board[draw_y][draw_x] == 2:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 10)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 10)
             if self.game.player_turn_number == 1:
-                pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 8)
+                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 8)
             else:
-                pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 10)
+                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 10)
         if self.end == True:
-            pyxel.text(960, 540, f"La partie est terminée", 7)
+            pyxel.text(960/size, 540/size, f"La partie est terminée", 7)
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Connexion au serveur...")
+client.connect(("172.16.4.5", 62222))
+
+print("Connexion au lobby...")
+pseudo = inquirer.text("Quel est votre pseudo : ").execute()
+client.send(f"/lobby {pseudo}".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+
+print(data)
+if data == f"{pseudo} is connected to the lobby":
+    print("We are in !")
+
+client.send(f"/party".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+
+print(data)
+
+client.send(f"/wait".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+print(data)
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"], #Liste des IPs
