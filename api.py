@@ -5,7 +5,7 @@ def board():
     return [[0 for _ in range(7)] for _ in range(6)]
 
 def Game:
-    def __init__(self, player_ip_list[0], board, player_turn_ip):
+    def __init__(self, player_ip_list, board, player_turn_ip):
         self.player_ip_list = player_ip_list
         self.player_turn_number = self.ip_to_number(player_turn_ip)
         self.board = board
