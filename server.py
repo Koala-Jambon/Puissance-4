@@ -104,15 +104,17 @@ def jouer(partie_id, client: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]}
+    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
     client.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
         if "/wait" in data:
             data = data.split(" ", 1)
-            print(data[1])
-            board = list(data[1])
+            print(data)
+            board = json.loads(data[1])["board"]
+            # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
+                print(f"waiting... {client_address}")
                 time.sleep(1)
 
             client.send(json.dumps({"board": game.board}).encode("utf-8"))   
@@ -135,6 +137,7 @@ def jouer(partie_id, client: socket.socket, client_address):
 
                 if game.check_column(column_number=colonne):
                     nboard = game.drop_piece(column_number=colonne)
+                    game.board = nboard
                     if game.check_endgame():
                         print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
                     print(f"<---Nouveau plateau--->\n{nboard}")

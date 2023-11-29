@@ -23,10 +23,22 @@ data = client.recv(1024).decode("utf-8")
 client.send(f"/wait".encode("utf-8"))
 data = client.recv(1024).decode("utf-8")
 print(data)
-
-while data != "error":
-    print("Sur quelle colonne voulez vous jouer ?")
-    cmd = inquirer.number("Numéro colonne [0-6]").execute().encode("utf-8")
-    client.send(cmd)
-    data = client.recv(4096).decode("utf-8")
-    print(data)
+data = json.loads(data)
+if data["you"] == data["tour"]:
+    while data != "error":
+        print("Sur quelle colonne voulez vous jouer ?")
+        cmd = inquirer.number("Numéro colonne [0-6]").execute()
+        client.send(f"/play {cmd}".encode("utf-8"))
+        data = client.recv(4096).decode("utf-8")
+        print(data)
+else:
+    while True:
+        client.send(f"/wait {json.dumps({'board': data['board']})}".encode("utf-8"))
+        print("J'attends")
+        data = client.recv(1024).decode("utf-8")
+        print(data)
+        print("Sur quelle colonne voulez vous jouer ?")
+        cmd = inquirer.number("Numéro colonne [0-6]").execute()
+        client.send(f"/play {cmd}".encode("utf-8"))
+        data = client.recv(4096).decode("utf-8")
+        print(data)
