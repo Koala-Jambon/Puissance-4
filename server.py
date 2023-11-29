@@ -109,28 +109,30 @@ def jouer(partie_id, client: socket.socket, client_address):
         data = client.recv(4096).decode("utf-8")
         if "/wait" in data:
             pass
-        print(party)
-        if client_address != game.player_turn():
-            print(f"left {client_address} // right {game.player_turn()}")
-            client.send("Error : Pas ton tour connard".encode("utf-8"))
-            # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
-            continue
-        try:
 
-            colonne = int(data)
-            if colonne < 0:
-                colonne = 0
-            if colonne > 6:
-                colonne = 6
+        if "/play" in data:
+            print(party)
+            if client_address != game.player_turn():
+                print(f"left {client_address} // right {game.player_turn()}")
+                client.send("Error : Pas ton tour connard".encode("utf-8"))
+                # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
+                continue
+            try:
+                data = data.split()
+                colonne = int(data[1])
+                if colonne < 0:
+                    colonne = 0
+                if colonne > 6:
+                    colonne = 6
 
-            if game.check_column(column_number=colonne):
-                nboard = game.drop_piece(column_number=colonne)
-                if game.check_endgame():
-                    print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
-                print(f"<---Nouveau plateau--->\n{nboard}")
-                client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
-        except ValueError:
-            client.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
+                if game.check_column(column_number=colonne):
+                    nboard = game.drop_piece(column_number=colonne)
+                    if game.check_endgame():
+                        print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
+                    print(f"<---Nouveau plateau--->\n{nboard}")
+                    client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
+            except ValueError or KeyError:
+                client.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
 
 
 
