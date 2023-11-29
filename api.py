@@ -9,8 +9,16 @@ class Game:
         self.player_ip_list = player_ip_list
         self.player_turn_number = self.ip_to_number(player_turn_ip)
         self.board = board
-        
-    #Return le numéro du joueur en fonction de son IP
+
+
+    def actual_board(self):
+        return self.board
+
+    def player_turn(self):
+        return self.number_to_ip(self.player_turn_number)
+
+
+    # Return le numéro du joueur en fonction de son IP
     def ip_to_number(self, player_ip):
         if player_ip == self.player_ip_list[0]:
             return 1

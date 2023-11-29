@@ -80,7 +80,7 @@ def handle_client(client: socket.socket, client_address):
                     """
                     {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd", 1]}}
                     """
-                    party[data[1]]["jeu"] = {"board": api.board(), "tour": tour}
+                    party[data[1]]["jeu"] = {"board": api.board(), "game": api.Game(party[data[1]]["joueurs"], api.board(), tour[0])}
                 client.send("Vous avez rejoins la partie".encode("utf-8"))
 
             except KeyError:
@@ -100,13 +100,15 @@ def handle_client(client: socket.socket, client_address):
 
 def jouer(partie_id, client: socket.socket, client_address):
     # Une fois que la partie est crée et que les deux joueurs sont dedans
-    print(party)
-    board = party[partie_id]["jeu"]["board"]
+    game = party[partie_id]["jeu"]["game"]
+    print("<---Board actuel--->")
+    print(game.board)
     client.send(json.dumps(party[partie_id]).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
         print(party)
-        if client_address != party[partie_id]["jeu"]["tour"][0]:
+        if client_address != game.player_turn():
+            print(f"left {client_address} // right {game.player_turn()}")
             client.send("Error : Pas ton tour connard")
             # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
             continue
@@ -118,14 +120,13 @@ def jouer(partie_id, client: socket.socket, client_address):
             if colonne > 6:
                 colonne = 6
 
-            if api.check_column(column_number=colonne, board=board):
-                api.drop_piece(column_number=colonne, board=board, player_turn_number=1)
-
+            if game.check_column(column_number=colonne):
+                nboard = game.drop_piece(column_number=colonne)
+                print(f"<---Nouveau plateau--->\n{nboard}")
+                client.send("Ok /wait")
         except ValueError:
             client.send(f"Error : veuillez rentrer un vrai numéro".encode())
 
-
-        client.send(f"J'ai reçu {data}".encode())
 
 error = False
 while not error:
