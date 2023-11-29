@@ -123,6 +123,8 @@ def jouer(partie_id, client: socket.socket, client_address):
 
             if game.check_column(column_number=colonne):
                 nboard = game.drop_piece(column_number=colonne)
+                if game.check_endgame():
+                    print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
                 print(f"<---Nouveau plateau--->\n{nboard}")
                 client.send("Ok /wait".encode("utf-8"))
         except ValueError:

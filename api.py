@@ -98,7 +98,7 @@ class Game:
         for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
             if getattr(func)() != 0:
                 return True
-        if check_tie() == True:
+        if self.check_tie() == True:
             return True
                 
     #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
@@ -109,9 +109,9 @@ class Game:
         return True
     
     #Return le numéro du joueur qui doit jouer ne fonction du joueur qui vient de jouer:
-    def change_player_turn(self):
-        if self.player_turn_number == 1:
-            return 2
+    def change_player_turn(self, turn):
+        if turn == 1:
+            self.player_turn_number = 2
         else:
-            return 1
+            self.player_turn_number = 1
 
