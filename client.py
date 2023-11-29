@@ -50,7 +50,7 @@ class App:
             # On update le board
             self.game.board = data["board"]
             print(data)
-            print("j'ai fini d'attendre")
+            self.game.change_player_turn()
         else:
             time.sleep(3)
             pyxel.quit()
