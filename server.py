@@ -128,9 +128,10 @@ def jouer(partie_id, client: socket.socket, client_address):
                 if game.check_endgame():
                     print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
                 print(f"<---Nouveau plateau--->\n{nboard}")
-                client.send(json.dumps({"board": nboard}).encode("utf-8"))
+                client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
         except ValueError:
-            client.send(f"Error : veuillez rentrer un vrai numéro".encode())
+            client.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
+
 
 
 error = False
