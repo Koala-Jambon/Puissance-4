@@ -3,6 +3,9 @@ import time
 import itertools as tool
 import api
 
+import socket
+from InquirerPy import inquirer
+
 class App:
     
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
@@ -48,6 +51,38 @@ class App:
                 pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 10)
         if self.end == True:
             pyxel.text(960, 540, f"La partie est terminée", 7)
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Connexion au serveur...")
+client.connect(("172.16.4.5", 62222))
+
+print("Connexion au lobby...")
+pseudo = inquirer.text("Quel est votre pseudo : ").execute()
+client.send(f"/lobby {pseudo}".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+
+print(data)
+if data == f"{pseudo} is connected to the lobby":
+    print("We are in !")
+
+client.send(f"/party".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+
+print(data)
+
+client.send(f"/wait".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+print(data)
+
+
+"""
+while data != "error":
+    print("Sur quelle colonne voulez vous jouer ?")
+    cmd = inquirer.number("Numéro colonne [0-6]").execute().encode("utf-8")
+    client.send(cmd)
+    data = client.recv(4096).decode("utf-8")
+    print(data)
+"""
 
 # Ici tu te connecte au serveur(tu te demerde) et je veux juste que la liste des joueurs et le pseudo du joueur sur ce client ressortent.
 App(["Freud", "Karl"], #Liste des IPs
