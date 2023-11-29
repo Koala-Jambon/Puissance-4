@@ -1,14 +1,14 @@
 import itertools as tool
 
+#Return le teableau de jeu
+def board():
+    return [[0 for _ in range(7)] for _ in range(6)]
+
 def Game:
     def __init__(self, player_ip_list[0], board, player_turn_ip):
         self.player_ip_list = player_ip_list
         self.player_turn_number = self.ip_to_number(player_turn_ip)
         self.board = board
-
-    #Return le teableau de jeu
-    def board():
-        return [[0 for _ in range(7)] for _ in range(6)]
         
     #Return le numéro du joueur en fonction de son IP
     def ip_to_number(player_ip):
