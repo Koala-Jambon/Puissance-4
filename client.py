@@ -20,13 +20,13 @@ class App:
         if (self.game.player_turn_number == self.player_number and self.end == False):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                 self.choice_position += 1
-                #Envoie self.choice_position au serveur
+                #Envoie (self.choice_position-1) au serveur
             elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
                 self.choice_position += -1
-                #Envoie self.choice_position au serveur
+                #Envoie (self.choice_position-1) au serveur
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
-                #Envoie self.choice_position au serveur et récupère toute les infos du serv
+                #Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
                 self.choice_position = 0
         elif self.end == False:
             # Waiting for the other player to send a message then self.draw()
@@ -36,7 +36,7 @@ class App:
             pyxel.quit()
             exit()
 
-    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu et vérifie si il y a un gagnant
+    # Peu importe si le joueur doit jouer ou non, il dessine le tableau de jeu
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
