@@ -85,7 +85,7 @@ data = client.recv(4096).decode("utf-8")
 
 print(data)
 if data == f"{pseudo} is connected to the lobby":
-    print("We are in !")
+    print("Connexion établie !")
 
 client.send(f"/party".encode("utf-8"))
 data = client.recv(4096).decode("utf-8")
