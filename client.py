@@ -2,6 +2,7 @@ import pyxel
 import time
 import itertools as tool
 import api
+import json
 
 import socket
 from InquirerPy import inquirer
@@ -27,10 +28,24 @@ class App:
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 #Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
+                client.send(f"/play {self.choice_position-1}")
+                # On attend la réponse du serveur
+                data = client.recv(4096).decode("utf-8")
+                data = json.loads(data)
+                self.game.board = data["board"]
+                if "/wait" in data["message"]:
+                    pass
+                else:
+                    self.game.change_player_turn()
                 self.choice_position = 0
         elif self.end == False:
-            # Waiting for the other player to send a message then self.draw()
-            pass
+            # On attend que l'autre joueur joue
+            client.send(f"/wait {self.game.board}".encode("utf-8"))
+            data = client.recv(4096).decode("utf-8")
+            data = json.loads(data)
+            # On update le board
+            self.game.board = data["board"]
+            print("OK")
         else:
             time.sleep(3)
             pyxel.quit()

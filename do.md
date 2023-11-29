@@ -1,0 +1,1 @@
+# Je fais le /wait quand le joueur a joué

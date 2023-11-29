@@ -42,7 +42,7 @@ class Game:
         while self.board[n][column_number] == 0 and n !=-1:
             n += -1
         self.board[n+1][column_number] = self.player_turn_number
-        self.change_player_turn(self.player_turn_number)
+        self.change_player_turn()
         return self.board
     
     #Check si il y a 4 jetons alignés horizontalement (-) : Ne Return pas si il n'y a aucun gagnant pour le moment ; 1 Si le 1 a gagné ; 2 Si le 2 a gagné.
@@ -115,8 +115,8 @@ class Game:
         return True
     
     #Return le numéro du joueur qui doit jouer ne fonction du joueur qui vient de jouer:
-    def change_player_turn(self, turn):
-        if turn == 1:
+    def change_player_turn(self):
+        if self.player_turn_number == 1:
             self.player_turn_number = 2
         else:
             self.player_turn_number = 1
