@@ -2,10 +2,11 @@ import pyxel
 import time
 import itertools as tool
 import api
-import json
 
 import socket
 from InquirerPy import inquirer
+
+size = 1
 
 class App:
     
@@ -14,7 +15,7 @@ class App:
         self.end = False
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
-        pyxel.init(1920/size, 1080/size, title="Online Power 4")
+        pyxel.init(int(1920/size), int(1080/size), title="Online Power 4")
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -28,24 +29,10 @@ class App:
             elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 #Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
-                client.send(f"/play {self.choice_position-1}")
-                # On attend la réponse du serveur
-                data = client.recv(4096).decode("utf-8")
-                data = json.loads(data)
-                self.game.board = data["board"]
-                if "/wait" in data["message"]:
-                    pass
-                else:
-                    self.game.change_player_turn()
                 self.choice_position = 0
         elif self.end == False:
-            # On attend que l'autre joueur joue
-            client.send(f"/wait {self.game.board}".encode("utf-8"))
-            data = client.recv(4096).decode("utf-8")
-            data = json.loads(data)
-            # On update le board
-            self.game.board = data["board"]
-            print("OK")
+            # Waiting for the other player to send a message then self.draw()
+            pass
         else:
             time.sleep(3)
             pyxel.quit()
@@ -56,11 +43,11 @@ class App:
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435)/size, (930 - 150 * draw_y)/size, 150/size, 150/size, 1)
-            if self.board[draw_y][draw_x] == 0:
+            if self.game.board[draw_y][draw_x] == 0:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 0)
-            if self.board[draw_y][draw_x] == 1:
+            if self.game.board[draw_y][draw_x] == 1:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 8)
-            if self.board[draw_y][draw_x] == 2:
+            if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 10)
             if self.game.player_turn_number == 1:
                 pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 8)
@@ -71,7 +58,7 @@ class App:
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
-client.connect(("172.16.4.5", 62222))
+client.connect(("127.0.0.1", 62222))
 
 print("Connexion au lobby...")
 pseudo = inquirer.text("Quel est votre pseudo : ").execute()
