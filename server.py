@@ -1,3 +1,4 @@
+
 import socket
 import threading
 import time
@@ -108,7 +109,7 @@ def jouer(partie_id, client: socket.socket, client_address):
     while True:
         data = client.recv(4096).decode("utf-8")
         if "/wait" in data:
-            pass
+            
 
         if "/play" in data:
             print(party)
