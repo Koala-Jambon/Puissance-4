@@ -13,7 +13,7 @@ class App:
         self.end = False
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
-        pyxel.init(1920, 1080, title="Online Power 4")
+        pyxel.init(1920/size, 1080/size, title="Online Power 4")
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -38,19 +38,19 @@ class App:
     def draw(self):
         pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
-            pyxel.rect(150 * draw_x + 435, 930 - 150 * draw_y, 150, 150, 1)
+            pyxel.rect((150 * draw_x + 435)/size, (930 - 150 * draw_y)/size, 150/size, 150/size, 1)
             if self.board[draw_y][draw_x] == 0:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 0)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 0)
             if self.board[draw_y][draw_x] == 1:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 8)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 8)
             if self.board[draw_y][draw_x] == 2:
-                pyxel.circ(150 * draw_x + 510, 1005 - 150 * draw_y, 70, 10)
+                pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 10)
             if self.game.player_turn_number == 1:
-                pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 8)
+                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 8)
             else:
-                pyxel.circ(150 * (self.choice_position - 1) + 510, 75, 70, 10)
+                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 10)
         if self.end == True:
-            pyxel.text(960, 540, f"La partie est terminée", 7)
+            pyxel.text(960/size, 540/size, f"La partie est terminée", 7)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
