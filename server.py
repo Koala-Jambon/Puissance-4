@@ -107,6 +107,8 @@ def jouer(partie_id, client: socket.socket, client_address):
     client.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
+        if "/wait" in data:
+            pass
         print(party)
         if client_address != game.player_turn():
             print(f"left {client_address} // right {game.player_turn()}")
@@ -126,7 +128,7 @@ def jouer(partie_id, client: socket.socket, client_address):
                 if game.check_endgame():
                     print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
                 print(f"<---Nouveau plateau--->\n{nboard}")
-                client.send("Ok /wait".encode("utf-8"))
+                client.send(json.dumps({"board": nboard}).encode("utf-8"))
         except ValueError:
             client.send(f"Error : veuillez rentrer un vrai numéro".encode())
 
