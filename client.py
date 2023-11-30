@@ -16,6 +16,7 @@ class App:
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
         pyxel.init(int(1920/size), int(1080/size), title = f"{player_ip}")
+        self.draw()
         pyxel.run(self.update, self.draw)
 
     # Check if the player has played/received a moove
@@ -37,40 +38,38 @@ class App:
                 print(f'{data} quand on joue')
                 self.game.board = data["board"]
                 if "/wait" in data["message"]:
-                    print('oui')
+                    print('/wait')
                     self.wait = True
                 else:
                     self.game.change_player_turn()
                 if "/endgame" in data["message"]:
                     print('/endgame')
                     if self.game.check_tie == True:
-                        print("DRAAAAAAAAAAAAAAAAW")
+                        print("Draw")
                     else:
                         for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                             if getattr(self.game, func)():
                                 print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                                pyxel.quit()
+                                exit()
                 self.choice_position = 0
         else:
             # On attend que l'autre joueur joue
-            print("je suis làààààààààà")
+            print("J'attends le coup de l'autre joueur")
             client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
-            print("je vais print data")
             print(f'{data} quand on attends')
             # On update le board
             self.game.board = data["board"]
-            print(data)
             if "/endgame" in data["message"]:
-                print("END")
+                print("/endgame")
                 if self.game.check_tie == True:
-                    print("DRAAAAAAAAAAAAAAAAW")
+                    print("Draw")
                 else:
                     for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                        print(getattr(self.game, func)())
                         if getattr(self.game, func)():
                             print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-
             self.game.change_player_turn()
 
     # Draws the board
