@@ -20,16 +20,17 @@ class App:
         pyxel.run(self.update, self.draw)
     
     def calculate_endgame(data):
-                        if "/endgame" in data["message"]:
-                    print('/endgame')
-                    if self.game.check_tie == True:
-                        print("Draw")
-                    else:
-                        for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                            if getattr(self.game, func)():
-                                print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-                                pyxel.quit()
-                                exit()
+        if "/endgame" in data["message"]:
+            print('/endgame')
+            if self.game.check_tie == True:
+                print("Draw")
+            else:
+                for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+                    if getattr(self.game, func)():
+                        print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                        pyxel.quit()
+                        exit()
+                        
     # Check if the player has played/received a moove
     def in_game_update(self):
         if (self.game.player_turn_number == self.player_number):
