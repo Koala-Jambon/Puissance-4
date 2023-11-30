@@ -1,11 +1,11 @@
 import pyxel
 import time
 import itertools as tool
-import api
 import json
-
 import socket
 from InquirerPy import inquirer
+
+import api
 
 size = 1.5
 
