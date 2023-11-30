@@ -13,7 +13,6 @@ class App:
     
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
-        self.end = False
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
         pyxel.init(int(1920/size), int(1080/size), title = f"{player_ip}")
@@ -21,7 +20,7 @@ class App:
 
     # Check if the player has played/received a moove
     def update(self):
-        if (self.game.player_turn_number == self.player_number and self.end == False):
+        if (self.game.player_turn_number == self.player_number):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                 self.choice_position += 1
                 #Envoie (self.choice_position-1) au serveur
@@ -35,12 +34,13 @@ class App:
                 # On attend la réponse du serveur
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
-                print(data)
+                print(f'{data} quand on joue')
                 self.game.board = data["board"]
                 if "/wait" in data["message"]:
+                    print('oui')
                     self.wait = True
                 elif "/endgame" in data["message"]:
-                    self.end = True
+                    print('/endgame')
                     if self.game.check_tie == True:
                         print("DRAAAAAAAAAAAAAAAAW")
                     else:
@@ -50,12 +50,13 @@ class App:
                 else:
                     self.game.change_player_turn()
                 self.choice_position = 0
-        elif self.end == False:
-            self.draw()
+        else:
             # On attend que l'autre joueur joue
+            print("je suis làààààààààà")
             client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
+            print("je vais print data")
             print(f'{data} quand on attends')
             if "/endgame" in data["message"]:
                 self.end = True
@@ -70,10 +71,6 @@ class App:
             self.game.board = data["board"]
             print(data)
             self.game.change_player_turn()
-        else:
-            time.sleep(3)
-            pyxel.quit()
-            exit()
 
     # Draws the board
     def draw(self):
@@ -95,7 +92,7 @@ class App:
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
-client.connect(("172.16.4.7", 62222))
+client.connect(("172.16.122.1", 62222))
 
 print("Connexion au lobby...")
 pseudo = inquirer.text("Quel est votre pseudo : ").execute()
