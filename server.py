@@ -116,8 +116,10 @@ def jouer(partie_id, client: socket.socket, client_address):
             while game.board == board:
                 print(f"waiting... {client_address}")
                 time.sleep(1)
-
-            client.send(json.dumps({"board": game.board}).encode("utf-8"))   
+            if game.check_endgame():
+                fin_partie(game)
+            else:
+                client.send(json.dumps({"board": game.board}).encode("utf-8"))
 
 
         if "/play" in data:
@@ -139,12 +141,17 @@ def jouer(partie_id, client: socket.socket, client_address):
                     nboard = game.drop_piece(column_number=colonne)
                     game.board = nboard
                     if game.check_endgame():
-                        print("FIN DE LA PUTAIN DE PARTIE DE CES GRANDS MORTS")
-                    print(f"<---Nouveau plateau--->\n{nboard}")
-                    client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
+                        fin_partie(game)
+                    else:
+                        print(f"<---Nouveau plateau--->\n{nboard}")
+                        client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
             except ValueError or KeyError:
                 client.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
 
+
+def fin_partie(game):
+    print("La partie est fini")
+    client.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
 
 
 error = False
