@@ -17,17 +17,17 @@ lobby = {}
 party = {}
 
 
-def handle_client(client: socket.socket, client_address):
+def handle_client(client_jouer: socket.socket, client_address):
     print(f"Un nouveau gars est arrivé : {client_address}")
     message = None
     while message != "/quit":
-        data = client.recv(1024).decode("utf-8")
+        data = client_jouer.recv(1024).decode("utf-8")
         print(f"DATA : {data} //")
         print(type(data))
 
         if data == "":
             print("Message vide")
-            client.close()
+            client_jouer.close()
             message = "/quit"
             continue
 
@@ -38,12 +38,12 @@ def handle_client(client: socket.socket, client_address):
                 print(f"{lobby[client_address]} est déjà dans le lobby")
             except KeyError:
                 print(f"Ajout de {data[1]} au lobby")
-                lobby[client_address] = {"pseudo": data[1], "status": "disponible", "partie_id": None, "client": client}
-            client.send(f"{data[1]} is connected to the lobby".encode("utf-8"))
+                lobby[client_address] = {"pseudo": data[1], "status": "disponible", "partie_id": None, "client": client_jouer}
+            client_jouer.send(f"{data[1]} is connected to the lobby".encode("utf-8"))
 
         # Si le client ne s'enregistre pas on vérifie qu'il l'est pour pouvoir faire les autres commandes
         if client_address not in lobby:
-            client.send(f"Veuillez d'abord rejoindre le lobby".encode("utf-8"))
+            client_jouer.send(f"Veuillez d'abord rejoindre le lobby".encode("utf-8"))
             continue
 
         if data[0] == "/party":
@@ -52,7 +52,7 @@ def handle_client(client: socket.socket, client_address):
             lobby[client_address]["partie_id"] = p_id
 
             party[p_id] = {"joueurs": [client_address], "jeu": None}
-            client.send(f"Partie {p_id}".encode("utf-8"))
+            client_jouer.send(f"Partie {p_id}".encode("utf-8"))
             print("OOOK")
 
         elif data[0] == "/join":
@@ -64,7 +64,7 @@ def handle_client(client: socket.socket, client_address):
                     party[data[1]]["joueurs"].append(client_address)
                     lobby[client_address]["partie_id"] = data[1]
                 else:
-                    client.send(f"Vous êtes déjà dans la partie {data[1]}. /leave pour la quitter".encode("utf-8"))
+                    client_jouer.send(f"Vous êtes déjà dans la partie {data[1]}. /leave pour la quitter".encode("utf-8"))
 
                 if len(party[data[1]]["joueurs"]) == 2:
                     # On fait les requetes API pour générer le tableau et on détermine le tour
@@ -81,10 +81,10 @@ def handle_client(client: socket.socket, client_address):
                     {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd", 1]}}
                     """
                     party[data[1]]["jeu"] = {"board": api.board(), "game": api.Game(party[data[1]]["joueurs"], api.board(), tour[0])}
-                client.send("Vous avez rejoins la partie".encode("utf-8"))
+                client_jouer.send("Vous avez rejoins la partie".encode("utf-8"))
 
             except KeyError:
-                client.send("Veuillez renseigner un identifiant de partie valide.".encode("utf-8"))
+                client_jouer.send("Veuillez renseigner un identifiant de partie valide.".encode("utf-8"))
 
         # Et là c'est quand le client est prêt à jouer et qu'il attend
         elif data[0] == "/wait":
@@ -94,38 +94,41 @@ def handle_client(client: socket.socket, client_address):
                 print("---ON ATTEND---")
                 print(party)
                 time.sleep(1)
-            jouer(p_id, client, client_address)
+            jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
 
 
-def jouer(partie_id, client: socket.socket, client_address):
+def jouer(partie_id, client_jouer: socket.socket, client_address):
     # Une fois que la partie est crée et que les deux joueurs sont dedans
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
     to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
-    client.send(json.dumps(to_send).encode("utf-8"))
+    client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
-        data = client.recv(4096).decode("utf-8")
+        data = client_jouer.recv(4096).decode("utf-8")
+        if data == "":
+            client_jouer.close()
+            continue
         print(f"Data from {client_address}\n {data}")
         if "/wait" in data:
             data = data.split(" ", 1)
-            print(data)
             board = json.loads(data[1])["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
                 time.sleep(1)
             if game.check_endgame():
-                fin_partie(game)
+                print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
+                fin_partie(game, client_jouer)
             else:
-                client.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
+                print(f"<--{client_address} peut JOUER-->")
+                client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
 
         if "/play" in data:
-            print(party)
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")
-                client.send("Error : Pas ton tour connard".encode("utf-8"))
+                client_jouer.send("Error : Pas ton tour connard".encode("utf-8"))
                 # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
                 continue
             try:
@@ -141,23 +144,23 @@ def jouer(partie_id, client: socket.socket, client_address):
                     game.board = nboard
                     if game.check_endgame():
                         print(f"La partie est fini pour {client_address}")
-
-                        fin_partie(game)
+                        fin_partie(game,client_jouer)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
-                        client.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
+                        client_jouer.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
             except ValueError or KeyError:
-                client.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
+                client_jouer.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
 
 
-def fin_partie(game):
-    client.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
+def fin_partie(game, client_in_end):
+    client_in_end.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
+    client_in_end.close()
 
 
 error = False
 while not error:
     print("Waiting for a Client...")
-    client, client_address = sock.accept()
-    threading.Thread(target=handle_client, args=(client, client_address)).start()
+    client, client_address_while = sock.accept()
+    threading.Thread(target=handle_client, args=(client, client_address_while)).start()
     print("Le thread a été lancé")
 
