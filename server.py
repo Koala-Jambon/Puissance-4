@@ -119,7 +119,7 @@ def jouer(partie_id, client: socket.socket, client_address):
             if game.check_endgame():
                 fin_partie(game)
             else:
-                client.send(json.dumps({"board": game.board}).encode("utf-8"))
+                client.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
 
         if "/play" in data:
@@ -151,6 +151,7 @@ def jouer(partie_id, client: socket.socket, client_address):
 
 def fin_partie(game):
     print("La partie est fini")
+
     client.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
 
 
