@@ -108,13 +108,13 @@ def jouer(partie_id, client: socket.socket, client_address):
     client.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client.recv(4096).decode("utf-8")
+        print(f"Data from {client_address}\n {data}")
         if "/wait" in data:
             data = data.split(" ", 1)
             print(data)
             board = json.loads(data[1])["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
-                print(f"waiting... {client_address}")
                 time.sleep(1)
             if game.check_endgame():
                 fin_partie(game)
@@ -141,6 +141,8 @@ def jouer(partie_id, client: socket.socket, client_address):
                     nboard = game.drop_piece(column_number=colonne)
                     game.board = nboard
                     if game.check_endgame():
+                        print(f"La partie est fini pour {client_address}")
+
                         fin_partie(game)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
@@ -150,8 +152,6 @@ def jouer(partie_id, client: socket.socket, client_address):
 
 
 def fin_partie(game):
-    print("La partie est fini")
-
     client.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
 
 
