@@ -19,9 +19,9 @@ class App:
         self.draw()
         pyxel.run(self.update, self.draw)
     
-    def calculate_endgame(data):
+    def calculate_endgame(self, data):
         if "/endgame" in data["message"]:
-            print('/endgame')
+            print('Debug : /endgame')
             if self.game.check_tie == True:
                 print("Draw")
             else:
@@ -54,30 +54,24 @@ class App:
                     self.wait = True
                 else:
                     self.game.change_player_turn()
-                    calculate_endgame(data)
+                    self.calculate_endgame(data)
                 self.choice_position = 0
         else:
-            # On attend que l'autre joueur joue
-            print("J'attends le coup de l'autre joueur")
+            # On attend le coup de l'autre joueur
+            print("Debug : On attend le coup de l'autre")
             client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
-            print(f'{data} quand on attends')
+            print(f'Debug : |On attend le coup de l'autre| {data} ')
             # On update le board
             self.game.board = data["board"]
-            if "/endgame" in data["message"]:
-                print("/endgame")
-                if self.game.check_tie == True:
-                    print("Draw")
-                else:
-                    for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                        if getattr(self.game, func)():
-                            print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+            # On regarde si la partie doit s'arrêter
+            self.calculate_endgame(data)
+            # On change le joueur qui doit jouer
             self.game.change_player_turn()
 
-    # Draws the board
-    def draw(self):
-        pyxel.cls(0)
+    # Draws the board       
+    def draw_board(self):
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435)/size, (930 - 150 * draw_y)/size, 150/size, 150/size, 1)
             if self.game.board[draw_y][draw_x] == 0:
@@ -86,10 +80,12 @@ class App:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 8)
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 10)
-            if self.game.player_turn_number == 1:
-                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 8)
-            else:
-                pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 10)
+        if self.game.player_turn_number == self.player_number:
+            pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 2*(self.player_number-1)+8)
+    
+    def draw(self):
+        pyxel.cls(0)
+        self.draw_board()
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
