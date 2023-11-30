@@ -111,19 +111,19 @@ def jouer(partie_id, client: socket.socket, client_address):
         print(f"Data from {client_address}\n {data}")
         if "/wait" in data:
             data = data.split(" ", 1)
-            print(data)
             board = json.loads(data[1])["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
                 time.sleep(1)
             if game.check_endgame():
+                print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
                 fin_partie(game)
             else:
+                print(f"<--{client_address} peut JOUER-->")
                 client.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
 
         if "/play" in data:
-            print(party)
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")
                 client.send("Error : Pas ton tour connard".encode("utf-8"))
@@ -142,7 +142,6 @@ def jouer(partie_id, client: socket.socket, client_address):
                     game.board = nboard
                     if game.check_endgame():
                         print(f"La partie est fini pour {client_address}")
-
                         fin_partie(game)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
@@ -153,6 +152,7 @@ def jouer(partie_id, client: socket.socket, client_address):
 
 def fin_partie(game):
     client.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
+    client.close()
 
 
 error = False

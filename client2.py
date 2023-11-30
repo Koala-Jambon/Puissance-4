@@ -95,7 +95,7 @@ class App:
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
-client.connect(("172.16.4.7", 62222))
+client.connect(("172.16.122.1", 62222))
 
 print("Connexion au lobby...")
 pseudo = inquirer.text("Quel est votre pseudo : ").execute()
