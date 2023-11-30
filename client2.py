@@ -59,7 +59,6 @@ class App:
             print("je vais print data")
             print(f'{data} quand on attends')
             if "/endgame" in data["message"]:
-                self.end = True
                 print("END")
                 if self.game.check_tie == True:
                     print("DRAAAAAAAAAAAAAAAAW")
@@ -87,8 +86,6 @@ class App:
                 pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 8)
             else:
                 pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 10)
-        if self.end == True:
-            pyxel.text(960/size, 540/size, f"La partie est terminée", 7)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Connexion au serveur...")
