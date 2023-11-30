@@ -62,7 +62,7 @@ class App:
             client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
-            print(f'Debug : |On attend le coup de l'autre| {data} ')
+            print(f"Debug : |On attend le coup de l'autre| {data} ")
             # On update le board
             self.game.board = data["board"]
             # On regarde si la partie doit s'arrêter
