@@ -18,9 +18,20 @@ class App:
         pyxel.init(int(1920/size), int(1080/size), title = f"{player_ip}")
         self.draw()
         pyxel.run(self.update, self.draw)
-
+    
+    def calculate_endgame(data):
+                        if "/endgame" in data["message"]:
+                    print('/endgame')
+                    if self.game.check_tie == True:
+                        print("Draw")
+                    else:
+                        for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+                            if getattr(self.game, func)():
+                                print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                                pyxel.quit()
+                                exit()
     # Check if the player has played/received a moove
-    def update(self):
+    def in_game_update(self):
         if (self.game.player_turn_number == self.player_number):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                 self.choice_position += 1
@@ -42,16 +53,7 @@ class App:
                     self.wait = True
                 else:
                     self.game.change_player_turn()
-                if "/endgame" in data["message"]:
-                    print('/endgame')
-                    if self.game.check_tie == True:
-                        print("Draw")
-                    else:
-                        for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                            if getattr(self.game, func)():
-                                print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-                                pyxel.quit()
-                                exit()
+                    calculate_endgame(data)
                 self.choice_position = 0
         else:
             # On attend que l'autre joueur joue
