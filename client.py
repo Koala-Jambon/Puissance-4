@@ -1,5 +1,5 @@
 import pyxel
-import time
+import os
 import itertools as tool
 import json
 import socket
@@ -16,22 +16,29 @@ class App:
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
         pyxel.init(int(1920/size), int(1080/size), title = f"{player_ip}")
-        self.draw()
-        pyxel.run(self.update, self.draw)
+        pyxel.run(self.in_game_update, self.draw)
     
+    def update(self):
+        self.in_game_update()
+
+    def draw(self):
+        pyxel.cls(0)
+        self.draw_board()
+
     def calculate_endgame(self, data):
         if "/endgame" in data["message"]:
             print('Debug : /endgame')
             if self.game.check_tie == True:
                 print("Draw")
-            else:
-                for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                    if getattr(self.game, func)():
-                        print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-                        pyxel.quit()
-                        exit()
-                        
-    # Check if the player has played/received a moove
+                pyxel.quit()
+                exit()
+            for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+                if getattr(self.game, func)():
+                    print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                    pyxel.quit()
+                    exit()
+             
+    # Checks if the player has played/received a moove
     def in_game_update(self):
         if (self.game.player_turn_number == self.player_number):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
@@ -82,33 +89,40 @@ class App:
                 pyxel.circ((150 * draw_x + 510)/size, (1005 - 150 * draw_y)/size, 70/size, 10)
         if self.game.player_turn_number == self.player_number:
             pyxel.circ((150 * (self.choice_position - 1) + 510)/size, 75/size, 70/size, 2*(self.player_number-1)+8)
+
+def connect_to_server(action):
+    global data, client
+    if action[0].lower() == "create":
+        action = '/party'
+    else:
+        action =  f'/join {action[1]}'
     
-    def draw(self):
-        pyxel.cls(0)
-        self.draw_board()
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print("Connexion au serveur...")
+    client.connect(("172.16.4.7", 62222))
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print("Connexion au serveur...")
-client.connect(("172.16.122.1", 62222))
+    print("Connexion au lobby...")
+    pseudo = inquirer.text("Quel est votre pseudo : ").execute()
+    client.send(f"/lobby {pseudo}".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
 
-print("Connexion au lobby...")
-pseudo = inquirer.text("Quel est votre pseudo : ").execute()
-client.send(f"/lobby {pseudo}".encode("utf-8"))
-data = client.recv(4096).decode("utf-8")
+    print(data)
+    if data == f"{pseudo} is connected to the lobby":
+        print("Connexion établie !")
 
-print(data)
-if data == f"{pseudo} is connected to the lobby":
-    print("Connexion établie !")
+    client.send(f"{action}".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
 
-client.send(f"/party".encode("utf-8"))
-data = client.recv(4096).decode("utf-8")
+    print(data)
 
-print(data)
+    client.send(f"/wait".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
+    print(data)
+    data = json.loads(data)
 
-client.send(f"/wait".encode("utf-8"))
-data = client.recv(4096).decode("utf-8")
-print(data)
-data = json.loads(data)
+os.system('clear')
+action = input("Que voulez-vous faire ? (Create/Join;Game Number)\n").split(";")
+connect_to_server(action)
 
 App(data["joueurs"],# Ip List
     data["you"],# Ip of the computer which is running this code
