@@ -98,6 +98,10 @@ if __name__ == "__main__":
     os.system('clear')
     action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "create"}, {"name": "Rejoindre une partie", "value": "join"}]).execute()
 
+    if action == "join":
+        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
+        action = f"{action} {party_id}"
+
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
     client.connect(("127.0.0.1", 62222))

@@ -46,7 +46,7 @@ def handle_client(client_jouer: socket.socket, client_address):
             client_jouer.send(f"Veuillez d'abord rejoindre le lobby".encode("utf-8"))
             continue
 
-        if data[0] == "/party":
+        if data[0] == "/create":
             p_id = str(len(party) + 1)
             lobby[client_address]["status"] = "En jeu"
             lobby[client_address]["partie_id"] = p_id
