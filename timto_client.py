@@ -94,12 +94,9 @@ class App:
                        2 * (self.player_number - 1) + 8)
 
 
-def connect_to_server(action):
-    global data, client
-    if action[0].lower() == "create":
-        action = '/party'
-    else:
-        action = f'/join {action[1]}'
+if __name__ == "__main__":
+    os.system('clear')
+    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "create"}, {"name": "Rejoindre une partie", "value": "join"}]).execute()
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
@@ -123,13 +120,9 @@ def connect_to_server(action):
     data = client.recv(4096).decode("utf-8")
     print(data)
     data = json.loads(data)
+    print(action)
 
-
-os.system('clear')
-action = input("Que voulez-vous faire ? (Create/Join;Game Number)\n").split(";")
-connect_to_server(action)
-
-App(data["joueurs"],  # Ip List
-    data["you"],  # Ip of the computer which is running this code
-    data["board"],  # Current state of the board(normally it's blank)
-    data["tour"])  # Ip of the player who has to play
+    App(data["joueurs"],  # Ip List
+        data["you"],  # Ip of the computer which is running this code
+        data["board"],  # Current state of the board(normally it's blank)
+        data["tour"])  # Ip of the player who has to play
