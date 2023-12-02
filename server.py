@@ -1,10 +1,11 @@
 import socket
 import threading
 import time
-
+import rich
 import api
 import json
 import random
+from colorama import Fore, Style
 
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,14 +18,28 @@ lobby = {}
 party = {}
 
 
+def client_init(client_jouer: socket.socket, client_address: tuple):
+    try:
+        handle_client(client_jouer, client_address)
+    except OSError:
+        print(Fore.RED + "Un client nous a quitté...")
+        print(Style.RESET_ALL)
+        if client_address in lobby:
+            # On vérifie qu'il n'est pas dans une partie
+            if lobby[client_address]["partie_id"]:
+                print("Suppression d'un client d'une PARTIE")
+                party[lobby[client_address]["partie_id"]]["joueurs"].remove(client_address)
+            lobby.pop(client_address)
+        client_jouer.close()
+
+
 def handle_client(client_jouer: socket.socket, client_address):
-    print(f"Un nouveau gars est arrivé : {client_address}")
+    print(Fore.BLUE + f"Client : {client_address}")
     message = None
     while message != "/quit":
         data = client_jouer.recv(1024).decode("utf-8")
-        print(f"DATA : {data} //")
-        print(type(data))
-
+        print(Fore.BLUE + f"Message de {client_address} : {data}")
+        print(Style.RESET_ALL)
         if data == "":
             print("Message vide")
             client_jouer.close()
@@ -32,6 +47,30 @@ def handle_client(client_jouer: socket.socket, client_address):
             continue
 
         data = data.split()
+
+        if data[0] == "/lobbylist":
+        # On lui renvoie tous les joueurs du lobby
+            to_return = {}
+            for joueur in lobby:
+                """
+                {"127.0.0.1": {"pseudo": "sd", "status": "disponible", "partie_id": null}}
+                """
+                to_return[joueur[0]] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
+            print("Voici ce que l'on return à /lobbylist")
+            rich.print(to_return)
+            client_jouer.send(json.dumps(to_return).encode("utf-8"))
+
+        if data[0] == "/partylist":
+            # Retourne la liste des parties
+            to_return = {}
+            for partie_id in party:
+                joueurs = []
+                for joueur in party[partie_id]["joueurs"]:
+                    joueurs.append(lobby[joueur]["pseudo"])
+                to_return[partie_id] = {"joueurs": joueurs}
+            print("Voici ce que l'on return à /partylist")
+            rich.print(to_return)
+            client_jouer.send(json.dumps(to_return).encode("utf-8"))
 
         if data[0] == "/lobby":
             try:
@@ -46,7 +85,7 @@ def handle_client(client_jouer: socket.socket, client_address):
             client_jouer.send(f"Veuillez d'abord rejoindre le lobby".encode("utf-8"))
             continue
 
-        if data[0] == "/party":
+        if data[0] == "/create":
             p_id = str(len(party) + 1)
             lobby[client_address]["status"] = "En jeu"
             lobby[client_address]["partie_id"] = p_id
@@ -124,7 +163,6 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
-
         if "/play" in data:
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")
@@ -159,8 +197,15 @@ def fin_partie(game, client_in_end):
 
 error = False
 while not error:
-    print("Waiting for a Client...")
+    print(Fore.GREEN + "Boucle en attente d'un client...")
+    print(Style.RESET_ALL)
     client, client_address_while = sock.accept()
-    threading.Thread(target=handle_client, args=(client, client_address_while)).start()
+    try:
+        threading.Thread(target=client_init, args=(client, client_address_while)).start()
+    except OSError:
+        client.close()
+        print(Fore.RED + "Un thread nous a quitté")
+        print(Style.RESET_ALL)
+
     print("Le thread a été lancé")
 
