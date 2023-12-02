@@ -1,3 +1,4 @@
+# Modules to import
 import pyxel
 import os
 import itertools as tool
@@ -5,37 +6,24 @@ import json
 import socket
 import rich
 
+# Files to import
 import api
 
+#Size of the screen, can be wathever you want ; 1.5 is recommanded
 size = 1.5
+
 
 class App:
 
     def __init__(self): 
-        self.state = 3
-        self.party_choice_number = 0
-        self.nickname = ""
+        self.state = 3 # State of the game ; Determines what the game has to draw/check
+        self.party_choice_number = 0 # Number of the party you are trying to join 
+        self.nickname = "" # Nickname chosen by the user ; By default empty
+        self.button = 1 # The number of the button the user is hovering over
         self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username"]
         self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username"]
-        self.button = 1
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Power 4")
-
         pyxel.run(self.update, self.draw)
-
-    def game_init(self, player_ip_list, player_ip, board, player_turn_ip):
-        self.game = api.Game(player_ip_list, board, player_turn_ip)
-        self.player_number = self.game.ip_to_number(player_ip)
-        self.choice_position = 0
-
-    def calculate_endgame(self, data: dict):
-        if "/endgame" == data["message"]:
-            print('Debug : /endgame')
-            if self.game.check_tie():
-                print("Draw")
-            for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
-                if getattr(self.game, func)():
-                    print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-            exit()
 
     def update(self):
         getattr(self, self.update_list[self.state])()
@@ -44,6 +32,7 @@ class App:
         pyxel.cls(0)
         getattr(self, self.draw_list[self.state])()
 
+    # Gets the username that the user chooses and sends it to the server
     def update_get_username(self):
         pyxel_key_letters = [pyxel.KEY_A,pyxel.KEY_B,pyxel.KEY_C,pyxel.KEY_D,pyxel.KEY_E,pyxel.KEY_F,pyxel.KEY_G,pyxel.KEY_H,pyxel.KEY_I,pyxel.KEY_J,pyxel.KEY_K,pyxel.KEY_L,pyxel.KEY_M,
                    pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
@@ -53,8 +42,10 @@ class App:
                 self.nickname = self.nickname + alphabet[letter].upper()
             elif pyxel.btnp(pyxel_key_letters[letter]):
                 self.nickname = self.nickname + alphabet[letter]
+
         os.system("cls")
         print(self.nickname)
+
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
             self.nickname = self.nickname[:-1]
         if pyxel.btnp(pyxel.KEY_RETURN):
@@ -65,7 +56,7 @@ class App:
             if data == f"{self.nickname} is connected to the lobby":
                 print("Connexion établie !")
 
-            # On récupère la liste des parties et des joueurs
+            # We get the list of parties and players
             client.send(b"/lobbylist")
             data = client.recv(4096).decode("utf-8")
             print("Liste des joueurs :")
@@ -83,6 +74,7 @@ class App:
     def draw_get_username(self):
         pass
 
+    # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
         free_party_list = self.check_free_parties()
         if pyxel.btnp(pyxel.KEY_UP):
@@ -94,9 +86,11 @@ class App:
             self.party_interactions(action)
             self.state = 2
     
+    # Draws the menu of selection of a party
     def draw_choose_party(self):
         pass
 
+    # Sends to the server what the user wants to do (Create/Join) a party
     def party_interactions(self, action):
         print("je veux faire " + action)
         client.send(f"{action}".encode("utf-8"))
@@ -116,6 +110,7 @@ class App:
                         data["tour"])  # Ip of the player who has to play
         self.state = 2
 
+    # Watches the interactions beetween the user and the buttons of the main menu
     def update_main_menu(self):
         if pyxel.btnp(pyxel.KEY_UP) and self.button in [1, 2]:
             self.button += -1
@@ -130,7 +125,7 @@ class App:
                 action = "/create"
                 self.party_interactions(action)
 
-
+    # Draws the main menu
     def draw_main_menu(self):
         buttons_coords = {
                           "x" : [20/size, 500/size, 500/size],
@@ -144,23 +139,6 @@ class App:
             else:
                 pyxel.rect(buttons_coords["x"][draw_button], buttons_coords["y"][draw_button], buttons_coords["w"][draw_button], buttons_coords["h"][draw_button], 2)
 
-    def check_free_parties(self):
-        client.send(b"/partylist")
-        data = client.recv(4096).decode("utf-8")
-        data = json.loads(data)
-        free_party_list = []
-        for game_id in range(len(data)):
-            if len(data[str(game_id+1)]["joueurs"]) < 2:
-                free_party_list.append(game_id)
-        return free_party_list
-                
-
-    def update_choose_game(self):
-        if pyxel.btnp(pyxel.KEY_UP) and self.button in range():
-            self.selected_game += 1
-        elif pyxel.btnp(pyxel.KEY_DOWN) and self.button in [0, 1]:
-            self.selected_game += -1
-
     # Checks if the player has played/received a moove
     def update_in_game(self):
         if (self.game.player_turn_number == self.player_number):
@@ -172,11 +150,11 @@ class App:
                     self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
-                # On attend la réponse du serveur
+                # Waiting for the answer of the server
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f'{data} quand on joue')
-                # Mise à jour du plateau
+                # Updates the board
                 self.game.board = data["board"]
                 if "/wait" in data["message"]:
                     print('/wait')
@@ -191,11 +169,11 @@ class App:
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
-            # On update le board
+            # Updates the board
             self.game.board = data["board"]
-            # On regarde si la partie doit s'arrêter
+            # Checks the game has ended ; If yes then tells the user why
             self.calculate_endgame(data)
-            # On change le joueur qui doit jouer
+            # Changes the player who has to play
             self.game.change_player_turn()
 
     # Draws the board in game
@@ -212,6 +190,34 @@ class App:
             pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size,
                        2 * (self.player_number - 1) + 8)
 
+    # Returns a list of all the parties with less than 2 players in it
+    def check_free_parties(self):
+        client.send(b"/partylist")
+        data = client.recv(4096).decode("utf-8")
+        data = json.loads(data)
+        free_party_list = []
+        for game_id in range(len(data)):
+            if len(data[str(game_id+1)]["joueurs"]) < 2:
+                free_party_list.append(game_id)
+        return free_party_list
+    
+    # Starts the game with the expected values
+    def game__init__(self, player_ip_list, player_ip, board, player_turn_ip):
+        self.game = api.Game(player_ip_list, board, player_turn_ip)
+        self.player_number = self.game.ip_to_number(player_ip)
+        self.choice_position = 0
+
+    # Tells to the user the result of the game
+    def calculate_endgame(self, data: dict):
+        if "/endgame" == data["message"]:
+            print('Debug : /endgame')
+            if self.game.check_tie():
+                print("Draw")
+            for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
+                if getattr(self.game, func)():
+                    print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+            exit()
+# Connects to the lobby and then starts the game
 if __name__ == "__main__":
     os.system('cls')
 
