@@ -14,13 +14,20 @@ print(data)
 if data == f"{pseudo} is connected to the lobby":
     print("We are in !")
 
-client.send(f"/lobbylist".encode("utf-8"))
 
 
-client.send(f"/party".encode("utf-8"))
+client.send(f"/create".encode("utf-8"))
 data = client.recv(4096).decode("utf-8")
 
 print(data)
+
+
+
+client.send(f"/partylist".encode("utf-8"))
+data = client.recv(4096).decode("utf-8")
+print(data)
+
+
 
 client.send(f"/wait".encode("utf-8"))
 data = client.recv(4096).decode("utf-8")

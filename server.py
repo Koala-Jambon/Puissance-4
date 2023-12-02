@@ -37,11 +37,19 @@ def handle_client(client_jouer: socket.socket, client_address):
         # On lui renvoie tous les joueurs du lobby
             to_return = {}
             for joueur in lobby:
-
-                to_return[joueur] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
+                """
+                {"127.0.0.1": {"pseudo": "sd", "status": "disponible", "partie_id": null}}
+                """
+                to_return[joueur[0]] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
             print("Voici ce que l'on return à /lobbylist")
             rich.print(to_return)
             client_jouer.send(json.dumps(to_return).encode("utf-8"))
+
+        if data[0] == "/partylist":
+            # Retourne la liste des parties
+            to_return = {}
+            for partie in party:
+                print(partie)
 
         if data[0] == "/lobby":
             try:
