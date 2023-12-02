@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-
+import rich
 import api
 import json
 import random
@@ -32,6 +32,16 @@ def handle_client(client_jouer: socket.socket, client_address):
             continue
 
         data = data.split()
+
+        if data[0] == "/lobbylist":
+        # On lui renvoie tous les joueurs du lobby
+            to_return = {}
+            for joueur in lobby:
+
+                to_return[joueur] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
+            print("Voici ce que l'on return à /lobbylist")
+            rich.print(to_return)
+            client_jouer.send(json.dumps(to_return).encode("utf-8"))
 
         if data[0] == "/lobby":
             try:
