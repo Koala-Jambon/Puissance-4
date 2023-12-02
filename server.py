@@ -5,6 +5,7 @@ import rich
 import api
 import json
 import random
+from colorama import Fore, Style
 
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,8 +18,23 @@ lobby = {}
 party = {}
 
 
+def client_init(client_jouer: socket.socket, client_address: tuple):
+    try:
+        handle_client(client_jouer, client_address)
+    except OSError:
+        print(Fore.RED + "Un client nous a quitté...")
+        print(Style.RESET_ALL)
+        if client_address in lobby:
+            # On vérifie qu'il n'est pas dans une partie
+            if lobby[client_address]["partie_id"]:
+                print("Suppression d'un client d'une PARTIE")
+                party[lobby[client_address]["partie_id"]]["joueurs"].remove(client_address)
+            lobby.pop(client_address)
+        client_jouer.close()
+
+
 def handle_client(client_jouer: socket.socket, client_address):
-    print(f"Un nouveau gars est arrivé : {client_address}")
+    print(Fore.BLUE + f"Client : {client_address}")
     message = None
     while message != "/quit":
         data = client_jouer.recv(1024).decode("utf-8")
@@ -183,8 +199,15 @@ def fin_partie(game, client_in_end):
 
 error = False
 while not error:
-    print("Waiting for a Client...")
+    print(Fore.GREEN + "Boucle en attente d'un client...")
+    print(Style.RESET_ALL)
     client, client_address_while = sock.accept()
-    threading.Thread(target=handle_client, args=(client, client_address_while)).start()
+    try:
+        threading.Thread(target=client_init, args=(client, client_address_while)).start()
+    except OSError:
+        client.close()
+        print(Fore.RED + "Un thread nous a quitté")
+        print(Style.RESET_ALL)
+
     print("Le thread a été lancé")
 
