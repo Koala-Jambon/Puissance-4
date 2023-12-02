@@ -3,6 +3,8 @@ import os
 import itertools as tool
 import json
 import socket
+
+import rich
 from InquirerPy import inquirer
 
 import api
@@ -96,13 +98,7 @@ class App:
 
 if __name__ == "__main__":
     os.system('clear')
-    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"}, {"name": "Rejoindre une partie", "value": "/join"}]).execute()
 
-    if action == "/join":
-        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
-        action = f"{action} {party_id}"
-
-    print("je veux faire " + action)
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
@@ -116,6 +112,29 @@ if __name__ == "__main__":
     print(data)
     if data == f"{pseudo} is connected to the lobby":
         print("Connexion établie !")
+
+    # On récupère la liste des parties et des joueurs
+    client.send(b"/lobbylist")
+    data = client.recv(4096).decode("utf-8")
+    print("Liste des joueurs :")
+    rich.print_json(data)
+    print("-------------------")
+
+    client.send(b"/partylist")
+    data = client.recv(4096).decode("utf-8")
+    print("Liste des parties :")
+    rich.print_json(data)
+    print("-------------------")
+
+    # On demande au joueur ce qu'il veut faire
+    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
+                                                  {"name": "Rejoindre une partie", "value": "/join"}]).execute()
+
+    if action == "/join":
+        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
+        action = f"{action} {party_id}"
+
+    print("je veux faire " + action)
 
     client.send(f"{action}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")

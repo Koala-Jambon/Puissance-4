@@ -48,8 +48,14 @@ def handle_client(client_jouer: socket.socket, client_address):
         if data[0] == "/partylist":
             # Retourne la liste des parties
             to_return = {}
-            for partie in party:
-                print(partie)
+            for partie_id in party:
+                joueurs = []
+                for joueur in party[partie_id]["joueurs"]:
+                    joueurs.append(lobby[joueur]["pseudo"])
+                to_return[partie_id] = {"joueurs": joueurs}
+            print("Voici ce que l'on return à /partylist")
+            rich.print(to_return)
+            client_jouer.send(json.dumps(to_return).encode("utf-8"))
 
         if data[0] == "/lobby":
             try:
