@@ -28,18 +28,15 @@ class App:
         pyxel.cls(0)
         self.draw_board()
 
-    def calculate_endgame(self, data):
-        if "/endgame" in data["message"]:
+    def calculate_endgame(self, data: dict):
+        if "/endgame" == data["message"]:
             print('Debug : /endgame')
-            if self.game.check_tie == True:
+            if self.game.check_tie:
                 print("Draw")
-                pyxel.quit()
-                exit()
             for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-                    pyxel.quit()
-                    exit()
+
 
     # Checks if the player has played/received a moove
     def in_game_update(self):
@@ -59,6 +56,7 @@ class App:
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f'{data} quand on joue')
+                # Mise à jour du plateau
                 self.game.board = data["board"]
                 if "/wait" in data["message"]:
                     print('/wait')
@@ -69,7 +67,6 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
-            print("Debug : On attend le coup de l'autre")
             client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
             data = json.loads(data)
@@ -95,6 +92,10 @@ class App:
             pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size,
                        2 * (self.player_number - 1) + 8)
 
+
+class EcranFin:
+    def __init__(self, winner, board):
+        pass
 
 if __name__ == "__main__":
     os.system('clear')
