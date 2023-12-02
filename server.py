@@ -163,7 +163,6 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
-
         if "/play" in data:
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")

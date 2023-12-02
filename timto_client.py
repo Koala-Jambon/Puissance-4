@@ -31,11 +31,12 @@ class App:
     def calculate_endgame(self, data: dict):
         if "/endgame" == data["message"]:
             print('Debug : /endgame')
-            if self.game.check_tie:
+            if self.game.check_tie():
                 print("Draw")
             for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+            exit()
 
 
     # Checks if the player has played/received a moove
@@ -103,7 +104,7 @@ if __name__ == "__main__":
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
-    client.connect(("127.0.0.1", 62222))
+    client.connect(("82.64.89.33", 62222))
 
     print("Connexion au lobby...")
     pseudo = inquirer.text("Quel est votre pseudo : ").execute()
