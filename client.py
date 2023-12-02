@@ -9,24 +9,31 @@ from InquirerPy import inquirer
 
 import api
 
-size = 1.5
+size = 10
 
 
 class App:
 
-    def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
+    def __init__(self): 
+        self.state = 0
+        self.update_list = ["update_main_menu", "update_in_game"]
+        self.draw_list = ["draw_main_menu", "draw_in_game"]
+        self.button = 1
+        pyxel.init(int(1920 / size), int(1080 / size), title=f"Power 4")
+
+        pyxel.run(self.update, self.draw)
+
+    def game_init(self, player_ip_list, player_ip, board, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
-        pyxel.init(int(1920 / size), int(1080 / size), title=f"{player_ip}")
-        pyxel.run(self.in_game_update, self.draw)
 
     def update(self):
-        self.in_game_update()
-
+        getattr(self, self.update_list[self.state])()
+    
     def draw(self):
         pyxel.cls(0)
-        self.draw_board()
+        getattr(self, self.draw_list[self.state])()
 
     def calculate_endgame(self, data: dict):
         if "/endgame" == data["message"]:
@@ -40,7 +47,7 @@ class App:
 
 
     # Checks if the player has played/received a moove
-    def in_game_update(self):
+    def update_in_game(self):
         if (self.game.player_turn_number == self.player_number):
             if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                 self.choice_position += 1
@@ -80,7 +87,7 @@ class App:
             self.game.change_player_turn()
 
     # Draws the board
-    def draw_board(self):
+    def draw_in_game(self):
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435) / size, (930 - 150 * draw_y) / size, 150 / size, 150 / size, 1)
             if self.game.board[draw_y][draw_x] == 0:
@@ -92,20 +99,57 @@ class App:
         if self.game.player_turn_number == self.player_number:
             pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size,
                        2 * (self.player_number - 1) + 8)
+    
+    def update_main_menu(self):
+        if pyxel.btnp(pyxel.KEY_UP) and self.button in [1, 2]:
+            self.button += -1
+        elif pyxel.btnp(pyxel.KEY_DOWN) and self.button in [0, 1]:
+            self.button += 1
+        elif pyxel.btnp(pyxel.KEY_RETURN):
+            if self.button == 0:
+                pyxel.quit()
+            elif self.button == 1:
+                party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
+                action = f"/join {party_id}"
+            elif self.button == 2:
+                action = "/create"
+            print("je veux faire " + action)
+            client.send(f"{action}".encode("utf-8"))
+            data = client.recv(4096).decode("utf-8")
 
+            print(data)
 
-class EcranFin:
-    def __init__(self, winner, board):
-        pass
+            client.send(f"/wait".encode("utf-8"))
+            data = client.recv(4096).decode("utf-8")
+            print(data)
+            data = json.loads(data)
+            print(action)
+
+            self.game_init(data["joueurs"],  # Ip List
+                           data["you"],  # Ip of the computer which is running this code
+                           data["board"],  # Current state of the board(normally it's blank)
+                           data["tour"])  # Ip of the player who has to play
+            self.state = 1
+
+    def draw_main_menu(self):
+        buttons_coords = {"x" : [20/size, 500/size, 500/size],
+                          "y" : [20/size, 400/size, 750/size],
+                          "w" : [100/size, 920/size, 920/size],
+                          "h" : [100/size, 250/size, 250/size]
+                         }
+        for draw_button in range(len(buttons_coords["x"])):
+            if draw_button == self.button:
+                pyxel.rect(buttons_coords["x"][draw_button], buttons_coords["y"][draw_button], buttons_coords["w"][draw_button], buttons_coords["h"][draw_button], 1)
+            else:
+                pyxel.rect(buttons_coords["x"][draw_button], buttons_coords["y"][draw_button], buttons_coords["w"][draw_button], buttons_coords["h"][draw_button], 2)
 
 if __name__ == "__main__":
-    os.system('clear')
-
+    os.system('cls')
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
-    client.connect(("82.64.89.33", 62222))
-
+    client.connect(("192.168.1.16", 62222))
+    
     print("Connexion au lobby...")
     pseudo = inquirer.text("Quel est votre pseudo : ").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
@@ -127,29 +171,5 @@ if __name__ == "__main__":
     print("Liste des parties :")
     rich.print_json(data)
     print("-------------------")
-
-    # On demande au joueur ce qu'il veut faire
-    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
-                                                  {"name": "Rejoindre une partie", "value": "/join"}]).execute()
-
-    if action == "/join":
-        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
-        action = f"{action} {party_id}"
-
-    print("je veux faire " + action)
-
-    client.send(f"{action}".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-
-    print(data)
-
-    client.send(f"/wait".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    print(data)
-    data = json.loads(data)
-    print(action)
-
-    App(data["joueurs"],  # Ip List
-        data["you"],  # Ip of the computer which is running this code
-        data["board"],  # Current state of the board(normally it's blank)
-        data["tour"])  # Ip of the player who has to play
+    
+    App()
