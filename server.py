@@ -38,9 +38,8 @@ def handle_client(client_jouer: socket.socket, client_address):
     message = None
     while message != "/quit":
         data = client_jouer.recv(1024).decode("utf-8")
-        print(f"DATA : {data} //")
-        print(type(data))
-
+        print(Fore.BLUE + f"Message de {client_address} : {data}")
+        print(Style.RESET_ALL)
         if data == "":
             print("Message vide")
             client_jouer.close()
