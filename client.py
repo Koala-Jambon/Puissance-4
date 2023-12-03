@@ -15,7 +15,6 @@ size = 1.5
 class App:
 
     def __init__(self): 
-        self.truc = 0
         self.state = 3 # State of the game ; Determines what the game has to draw/check
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
@@ -82,6 +81,7 @@ class App:
             action = f"/join {self.party_choice_number}"
             self.party_interactions(action)
             self.state = 2
+        print(self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -127,11 +127,6 @@ class App:
         self.draw_text("Join", [750/size, int(450/size)])
         self.draw_text("Create", [600/size, int(800/size)])
 
-
-        if self.truc == 0:
-            self.draw_text("Join", [750/size, int(450/size)])
-            self.draw_text("Create", [600/size, int(800/size)])
-            self.truc += 1
         buttons_coords = {
                           "x" : [20/size, 500/size, 500/size],
                           "y" : [20/size, 400/size, 750/size],
