@@ -12,10 +12,10 @@ import api
 #Size of the screen, can be wathever you want ; 1.5 is recommanded
 size = 1.5
 
-
 class App:
 
     def __init__(self): 
+        self.truc = 0
         self.state = 3 # State of the game ; Determines what the game has to draw/check
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
@@ -37,14 +37,11 @@ class App:
         pyxel_key_letters = [pyxel.KEY_A,pyxel.KEY_B,pyxel.KEY_C,pyxel.KEY_D,pyxel.KEY_E,pyxel.KEY_F,pyxel.KEY_G,pyxel.KEY_H,pyxel.KEY_I,pyxel.KEY_J,pyxel.KEY_K,pyxel.KEY_L,pyxel.KEY_M,
                    pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
         alphabet = "abcdefghijklmnopqrstuvwxyz"
-        for letter in range(len(pyxel_key_letters)):
+        for letter in range(26):
             if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT):
                 self.nickname = self.nickname + alphabet[letter].upper()
             elif pyxel.btnp(pyxel_key_letters[letter]):
                 self.nickname = self.nickname + alphabet[letter]
-
-        os.system("cls")
-        print(self.nickname)
 
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
             self.nickname = self.nickname[:-1]
@@ -72,7 +69,7 @@ class App:
             self.state = 0
 
     def draw_get_username(self):
-        pass
+        self.draw_text(self.nickname, [0,0])
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
@@ -127,17 +124,30 @@ class App:
 
     # Draws the main menu
     def draw_main_menu(self):
+        self.draw_text("Join", [750/size, int(450/size)])
+        self.draw_text("Create", [600/size, int(800/size)])
+
+
+        if self.truc == 0:
+            self.draw_text("Join", [750/size, int(450/size)])
+            self.draw_text("Create", [600/size, int(800/size)])
+            self.truc += 1
         buttons_coords = {
                           "x" : [20/size, 500/size, 500/size],
                           "y" : [20/size, 400/size, 750/size],
-                          "w" : [100/size, 920/size, 920/size],
-                          "h" : [100/size, 250/size, 250/size]
+                          "w" : [int(100/size), int(920/size), int(920/size)],
+                          "h" : [int(100/size), int(250/size), int(250/size)]
                          }
         for draw_button in range(len(buttons_coords["x"])):
             if draw_button == self.button:
-                pyxel.rect(buttons_coords["x"][draw_button], buttons_coords["y"][draw_button], buttons_coords["w"][draw_button], buttons_coords["h"][draw_button], 1)
+                for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
+                    if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
+                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 1)
             else:
-                pyxel.rect(buttons_coords["x"][draw_button], buttons_coords["y"][draw_button], buttons_coords["w"][draw_button], buttons_coords["h"][draw_button], 2)
+                for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
+                    if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
+                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 2)
+
 
     # Checks if the player has played/received a moove
     def update_in_game(self):
@@ -178,6 +188,7 @@ class App:
 
     # Draws the board in game
     def draw_in_game(self):
+        pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435) / size, (930 - 150 * draw_y) / size, 150 / size, 150 / size, 1)
             if self.game.board[draw_y][draw_x] == 0:
@@ -217,6 +228,40 @@ class App:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
             exit()
+    
+    def draw_text(self, text : str, coords : list):
+        text = text.lower()
+        letters_coords = {
+            "a" : [10, 15, 0, 0, 88, 0, 1],
+            "b" : [9, 15, 80, 0, 80, 0, 1],
+            "c" : [10, 15, 152, 0, 88, 0, 1],
+            "d" : [9, 15, 0, 120, 80, 0, 1],
+            "e" : [10, 15, 88, 120, 96, 0, 1],
+            "f" : [6, 15, 172, 120, 56, 0, 1],
+            "g" : [9, 15, 0, 0, 80, 1, 1],
+            "h" : [9, 15, 88, 0, 80, 1, 1],
+            "i" : [2, 15, 184, 0, 24, 1, 1],
+            "j" : [4, 15, 0, 120, 40, 1, 1],
+            "k" : [10, 15, 48, 120, 88, 1, 1],
+            "l" : [3, 15, 128, 120, 32, 1, 1],
+            "m" : [14, 15, 0, 0, 120, 2, 1],
+            "n" : [10, 15, 128, 0, 96, 2, 1],
+            "o" : [10, 15, 0, 128, 96, 2, 1],
+            "p" : [10, 15, 88, 128, 88, 2, 1],
+            "q" : [9, 15, 176, 128, 80, 2, 1],
+            "r" : [6, 15, 0, 0, 56, 0, 2],
+            "s" : [9, 15, 48, 0, 80, 0, 2],
+            "t" : [5, 15, 120, 0, 48, 0, 2]
+        }
+        for letter in text:
+            try:
+                pyxel.load(f"letter{letters_coords[letter][6]}.pyxres")
+                for w, h in tool.product(range(letters_coords[letter][0]), range(letters_coords[letter][1])):
+                    pyxel.blt(coords[0]+w*8, coords[1]+h*8, letters_coords[letter][5], letters_coords[letter][2]+w*8, letters_coords[letter][3]+h*8, 8, 8)
+                coords[0] += letters_coords[letter][4]
+            except KeyError:
+                print(letter)
+            
 # Connects to the lobby and then starts the game
 if __name__ == "__main__":
     os.system('cls')
