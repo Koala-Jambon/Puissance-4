@@ -1,3 +1,5 @@
+import time
+
 import pyxel
 import os
 import itertools as tool
@@ -14,7 +16,7 @@ size = 1.5
 
 
 def welcome():
-    print(Fore.GREEN + """
+    print(Fore.RED + """
  ____  __.           .__                      _____  
 |    |/ _|_________  |  | _____              /  |  | 
 |      < /  _ \__  \ |  | \__  \    ______  /   |  |_
@@ -29,32 +31,54 @@ def server_connect(ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         utils.info_log("Connexion au serveur de la NASA...")
+        time.sleep(1)
         client.connect((ip, port))
         utils.successful_log("Vous êtes connecté")
     except OSError:
         utils.error_log("Le serveur a empêché notre ATTAQUE")
         exit_game()
+    time.sleep(1)
     return client
 
 
 def lobby_connection(client):
     utils.info_log("Préparation du PAYLOAD")
+    time.sleep()
     pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
     if data["message"] == "connected":
         utils.successful_log("Vous avez réussi à vous introduire sans être repéré")
+        time.sleep(0.7)
 
 
 def get_player(client):
     utils.info_log("Récupérations des données utilisateurs...")
+    time.sleep()
     client.send("/lobbylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
     print(Fore.RESET + "<------JOUEURS------>")
     for ip in data:
-        print(Fore.YELLOW + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
+        print(Fore.BLUE + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
+        if data[ip]["status"] == "ingame":
+            print(Fore.RED + data[ip]["status"] + " n°" + data[ip]["partie_id"])
+        else:
+            print(Fore.GREEN + data[ip]["status"])
+
+    print(Fore.RESET + "<------------------->", end="\n\n")
+
+
+def get_party(client):
+    utils.info_log("Récupérations des parties")
+    client.send("/partylist".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
+    data = json.loads(data)
+    print(Fore.RESET + "<------PARTIES------>")
+    for p_id in data:
+        print(Fore.BLUE + "Partie n°" + p_id)
+        print(Fore.BLUE + "Joueurs : " + Fore.BLACK + data[p_id]["joueurs"])
         if data[ip]["status"] == "ingame":
             print(Fore.RED + data[ip]["status"] + " n°" + data[ip]["partie_id"])
         else:
@@ -62,9 +86,6 @@ def get_player(client):
 
     print(Fore.RESET + "<------------------->")
 
-
-def get_party(client):
-    pass
 
 def exit_game():
     pass
