@@ -3,17 +3,48 @@ import os
 import itertools as tool
 import json
 import socket
-
+from colorama import Fore, Style, Back
 import rich
-from InquirerPy import inquirer
+from InquirerPy import inquirer, get_style
+
 
 import api
 
 size = 1.5
 
 
-class App:
+def welcome():
+    print(Fore.GREEN + """
+ ____  __.           .__                      _____  
+|    |/ _|_________  |  | _____              /  |  | 
+|      < /  _ \__  \ |  | \__  \    ______  /   |  |_
+|    |  (  <_> ) __ \|  |__/ __ \_ /_____/ /    ^   /
+|____|__ \____(____  /____(____  /         \____   | 
+        \/         \/          \/               |__|
+""")
+    print(Style.RESET_ALL, end="")
 
+
+def server_connect(ip, port):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        print(">>Connexion au serveur de la NASA...")
+        client.connect((ip, port))
+    except OSError:
+        print(Fore.RED + "!>Le serveur a empêché notre ATTAQUE")
+        exit()
+    return client
+
+
+def lobby_connection(client):
+    print(Fore.GREEN + ">>Préparation du PAYLOAD")
+    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
+    client.send(f"/lobby {pseudo}".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
+
+
+
+class App:
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
         self.player_number = self.game.ip_to_number(player_ip)
@@ -100,16 +131,12 @@ class EcranFin:
 
 if __name__ == "__main__":
     os.system('clear')
+    welcome()
+    client = server_connect("127.0.0.1", 62222)
+    lobby_connection(client)
 
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("Connexion au serveur...")
-    client.connect(("82.64.89.33", 62222))
 
-    print("Connexion au lobby...")
-    pseudo = inquirer.text("Quel est votre pseudo : ").execute()
-    client.send(f"/lobby {pseudo}".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
 
     print(data)
     if data == f"{pseudo} is connected to the lobby":

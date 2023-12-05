@@ -73,12 +73,13 @@ def handle_client(client_jouer: socket.socket, client_address):
             client_jouer.send(json.dumps(to_return).encode("utf-8"))
 
         if data[0] == "/lobby":
-            try:
+            if client_address in lobby:
                 print(f"{lobby[client_address]} est déjà dans le lobby")
-            except KeyError:
+
+            else:
                 print(f"Ajout de {data[1]} au lobby")
                 lobby[client_address] = {"pseudo": data[1], "status": "disponible", "partie_id": None, "client": client_jouer}
-            client_jouer.send(f"{data[1]} is connected to the lobby".encode("utf-8"))
+            client_jouer.send(json.dumps({"message": "connected"}).encode("utf-8"))
 
         # Si le client ne s'enregistre pas on vérifie qu'il l'est pour pouvoir faire les autres commandes
         if client_address not in lobby:
