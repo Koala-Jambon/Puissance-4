@@ -57,8 +57,7 @@ def get_player(client):
     client.send("/lobbylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
-    print(Fore.RESET + "<------JOUEURS------>"
-                       "|                   |")
+    print(Fore.RESET + "<------JOUEURS------>")
     for ip in data:
         print(Fore.BLUE + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
         if data[ip]["status"] == "ingame":
@@ -74,8 +73,7 @@ def get_party(client):
     client.send("/partylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
-    print(Fore.RESET + "<------PARTIES------>"
-                       "|                   |")
+    print(Fore.RESET + "<------PARTIES------>")
     for p_id in data:
         print(Fore.BLUE + "| Partie n°" + p_id)
         print(Fore.BLUE + "| Joueurs : " + Fore.BLACK + data[p_id]["joueurs"])
@@ -83,16 +81,19 @@ def get_party(client):
 
 
 def question(client):
+    data = None
     action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
                                                          {"name": "Rejoindre une partie", "value": "/join"}]).execute()
     if action == "/join":
         party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
         action = f"{action} {party_id}"
 
-    print("je veux faire " + action)
-
     client.send(f"{action}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
+    data = json.loads(data)
+    if data["message"] == "error":
+        utils.error_log(data["details"])
+        question(client)
 
     print(data)
 
