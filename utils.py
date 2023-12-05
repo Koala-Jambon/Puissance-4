@@ -1,11 +1,18 @@
+import time
+
 from colorama import Style, Fore
 import rich
 from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 
 def info_log(message):
-    with yaspin():
-    print(Fore.LIGHTMAGENTA_EX + f"@>{message}")
+    message = Fore.BLUE + message
+    with yaspin(Spinners.earth, text=message) as sp:
+        time.sleep(2)
+
+
+
 
 def successful_log(message):
     print(Fore.GREEN + f"#>{message}")

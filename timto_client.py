@@ -43,7 +43,6 @@ def server_connect(ip, port):
 
 def lobby_connection(client):
     utils.info_log("Préparation du PAYLOAD")
-    time.sleep()
     pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
@@ -55,7 +54,6 @@ def lobby_connection(client):
 
 def get_player(client):
     utils.info_log("Récupérations des données utilisateurs...")
-    time.sleep()
     client.send("/lobbylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
@@ -181,7 +179,7 @@ if __name__ == "__main__":
     client = server_connect("127.0.0.1", 62222)
     lobby_connection(client)
     get_player(client)
-
+    get_party(client)
 
 
 
