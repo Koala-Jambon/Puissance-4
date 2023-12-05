@@ -28,21 +28,29 @@ def welcome():
 def server_connect(ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(">>Connexion au serveur de la NASA...")
+        print(Fore.LIGHTMAGENTA_EX + "@>Connexion au serveur de la NASA...")
         client.connect((ip, port))
+        print(Fore.GREEN + "#>Vous êtes connecté")
     except OSError:
         print(Fore.RED + "!>Le serveur a empêché notre ATTAQUE")
-        exit()
+        exit_game()
     return client
 
 
 def lobby_connection(client):
-    print(Fore.GREEN + ">>Préparation du PAYLOAD")
+    print(Fore.GREEN + "@>Préparation du PAYLOAD")
     pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
+    data = json.loads(data)
+    if data["message"] == "connected":
+        print(Fore.GREEN + "#>Vous avez réussi à vous introduire sans être repéré")
 
+def get_player(client):
+    print(Fore.CYAN + "#>")
 
+def exit_game():
+    pass
 
 class App:
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
