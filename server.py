@@ -88,7 +88,7 @@ def handle_client(client_jouer: socket.socket, client_address):
 
         if data[0] == "/create":
             p_id = str(len(party) + 1)
-            lobby[client_address]["status"] = "En jeu"
+            lobby[client_address]["status"] = "ingame"
             lobby[client_address]["partie_id"] = p_id
 
             party[p_id] = {"joueurs": [client_address], "jeu": None}

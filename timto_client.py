@@ -46,9 +46,25 @@ def lobby_connection(client):
     if data["message"] == "connected":
         utils.successful_log("Vous avez réussi à vous introduire sans être repéré")
 
+
 def get_player(client):
     utils.info_log("Récupérations des données utilisateurs...")
     client.send("/lobbylist".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
+    data = json.loads(data)
+    print(Fore.RESET + "<------JOUEURS------>")
+    for ip in data:
+        print(Fore.YELLOW + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
+        if data[ip]["status"] == "ingame":
+            print(Fore.RED + data[ip]["status"] + " n°" + data[ip]["partie_id"])
+        else:
+            print(Fore.GREEN + data[ip]["status"])
+
+    print(Fore.RESET + "<------------------->")
+
+
+def get_party(client):
+    pass
 
 def exit_game():
     pass
@@ -143,6 +159,7 @@ if __name__ == "__main__":
     welcome()
     client = server_connect("127.0.0.1", 62222)
     lobby_connection(client)
+    get_player(client)
 
 
 
