@@ -6,7 +6,7 @@ import socket
 from colorama import Fore, Style, Back
 import rich
 from InquirerPy import inquirer, get_style
-
+import utils
 
 import api
 
@@ -28,26 +28,27 @@ def welcome():
 def server_connect(ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(Fore.LIGHTMAGENTA_EX + "@>Connexion au serveur de la NASA...")
+        utils.info_log("Connexion au serveur de la NASA...")
         client.connect((ip, port))
-        print(Fore.GREEN + "#>Vous êtes connecté")
+        utils.successful_log("Vous êtes connecté")
     except OSError:
-        print(Fore.RED + "!>Le serveur a empêché notre ATTAQUE")
+        utils.error_log("Le serveur a empêché notre ATTAQUE")
         exit_game()
     return client
 
 
 def lobby_connection(client):
-    print(Fore.GREEN + "@>Préparation du PAYLOAD")
+    utils.info_log("Préparation du PAYLOAD")
     pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
     if data["message"] == "connected":
-        print(Fore.GREEN + "#>Vous avez réussi à vous introduire sans être repéré")
+        utils.successful_log("Vous avez réussi à vous introduire sans être repéré")
 
 def get_player(client):
-    print(Fore.CYAN + "#>")
+    utils.info_log("Récupérations des données utilisateurs...")
+    client.send("/lobbylist".encode("utf-8"))
 
 def exit_game():
     pass
