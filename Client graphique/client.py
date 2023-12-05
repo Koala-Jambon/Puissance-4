@@ -7,7 +7,7 @@ import socket
 import rich
 
 # Files to import
-import api
+from utils import api
 
 #Size of the screen, can be wathever you want ; 1.5 is recommanded
 size = 1.5
