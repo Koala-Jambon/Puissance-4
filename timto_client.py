@@ -36,20 +36,21 @@ def server_connect(ip, port):
         utils.successful_log("Vous êtes connecté")
     except OSError:
         utils.error_log("Le serveur a empêché notre ATTAQUE")
-        exit_game()
     time.sleep(1)
     return client
 
 
 def lobby_connection(client):
     utils.info_log("Préparation du PAYLOAD", 1)
-    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>", amark="?>").execute()
+    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>", amark="?>", default="Frank").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
     if data["message"] == "connected":
         utils.successful_log("Vous avez réussi à vous introduire sans être repéré")
         time.sleep(0.7)
+    else:
+        exit_game()
 
 
 def get_player(client):
@@ -81,7 +82,6 @@ def get_party(client):
 
 
 def question(client):
-    data = None
     action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
                                                          {"name": "Rejoindre une partie", "value": "/join"}]).execute()
     if action == "/join":
@@ -90,6 +90,7 @@ def question(client):
 
     client.send(f"{action}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
+    print(data)
     data = json.loads(data)
     if data["message"] == "error":
         utils.error_log(data["details"])
