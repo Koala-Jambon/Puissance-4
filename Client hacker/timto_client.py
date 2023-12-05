@@ -5,11 +5,11 @@ import os
 import itertools as tool
 import json
 import socket
-from colorama import Fore, Style, Back
-from InquirerPy import inquirer, get_style
+from colorama import Fore, Style
+from InquirerPy import inquirer
 import utils
 
-import api
+from utils import api
 
 size = 1.5
 

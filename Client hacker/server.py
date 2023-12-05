@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 import rich
-import api
+from utils import api
 import json
 import random
 from colorama import Fore, Style
