@@ -6,7 +6,6 @@ import itertools as tool
 import json
 import socket
 from colorama import Fore, Style, Back
-import rich
 from InquirerPy import inquirer, get_style
 import utils
 
@@ -16,7 +15,7 @@ size = 1.5
 
 
 def welcome():
-    print(Fore.RED + """
+    print(Fore.LIGHTGREEN_EX + """
  ____  __.           .__                      _____  
 |    |/ _|_________  |  | _____              /  |  | 
 |      < /  _ \__  \ |  | \__  \    ______  /   |  |_
@@ -90,6 +89,7 @@ def question(client):
 
     client.send(f"{action}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
+    data = json.loads(data)
     print(data)
 
     if data["message"] == "error":
