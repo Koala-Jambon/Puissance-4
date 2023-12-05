@@ -92,7 +92,7 @@ def handle_client(client_jouer: socket.socket, client_address):
             lobby[client_address]["partie_id"] = p_id
 
             party[p_id] = {"joueurs": [client_address], "jeu": None}
-            client_jouer.send(f"Partie {p_id}".encode("utf-8"))
+            client_jouer.send(json.dumps({"message": "ok", "partie_id": p_id}).encode("utf-8"))
             print("OOOK")
 
         elif data[0] == "/join":

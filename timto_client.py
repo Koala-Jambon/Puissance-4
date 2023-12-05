@@ -77,7 +77,7 @@ def get_party(client):
     print(Fore.RESET + "<------PARTIES------>")
     for p_id in data:
         print(Fore.BLUE + "| Partie n°" + p_id)
-        print(Fore.BLUE + "| Joueurs : " + Fore.BLACK + data[p_id]["joueurs"])
+        print(Fore.BLUE + "| Joueurs : " + Fore.BLACK + str(data[p_id]["joueurs"]))
     print(Fore.RESET + "<------------------->")
 
 
@@ -91,12 +91,13 @@ def question(client):
     client.send(f"{action}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     print(data)
-    data = json.loads(data)
+
     if data["message"] == "error":
         utils.error_log(data["details"])
         question(client)
+    if "partie_id" in data:
+        utils.successful_log(f"Vous êtes dans la partie n°{data['partie_id']}")
 
-    print(data)
 
 def exit_game():
     utils.error_log("VOUS ALLEZ QUITTER")
