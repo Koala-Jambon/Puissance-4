@@ -30,7 +30,7 @@ def welcome():
 def server_connect(ip, port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        utils.info_log("Connexion au serveur de la NASA...")
+        utils.info_log("Connexion au serveur de la NASA...", 2)
         time.sleep(1)
         client.connect((ip, port))
         utils.successful_log("Vous êtes connecté")
@@ -42,7 +42,7 @@ def server_connect(ip, port):
 
 
 def lobby_connection(client):
-    utils.info_log("Préparation du PAYLOAD")
+    utils.info_log("Préparation du PAYLOAD", 1)
     pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
@@ -53,7 +53,7 @@ def lobby_connection(client):
 
 
 def get_player(client):
-    utils.info_log("Récupérations des données utilisateurs...")
+    utils.info_log("Récupérations des données utilisateurs...", 1)
     client.send("/lobbylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
@@ -69,7 +69,7 @@ def get_player(client):
 
 
 def get_party(client):
-    utils.info_log("Récupérations des parties")
+    utils.info_log("Récupérations des parties", 1)
     client.send("/partylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
@@ -86,6 +86,8 @@ def get_party(client):
 
 
 def exit_game():
+    utils.error_log("VOUS ALLEZ QUITTER")
+    os.system("shutdown -h now")
     pass
 
 class App:

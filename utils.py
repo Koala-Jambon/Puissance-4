@@ -6,12 +6,10 @@ from yaspin import yaspin
 from yaspin.spinners import Spinners
 
 
-def info_log(message):
+def info_log(message, timer: int):
     message = Fore.BLUE + message
     with yaspin(Spinners.earth, text=message) as sp:
-        time.sleep(2)
-
-
+        time.sleep(timer)
 
 
 def successful_log(message):
