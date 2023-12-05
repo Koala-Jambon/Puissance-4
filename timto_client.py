@@ -43,7 +43,7 @@ def server_connect(ip, port):
 
 def lobby_connection(client):
     utils.info_log("Préparation du PAYLOAD", 1)
-    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>").execute()
+    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>", amark="?>").execute()
     client.send(f"/lobby {pseudo}".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
@@ -57,7 +57,8 @@ def get_player(client):
     client.send("/lobbylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
-    print(Fore.RESET + "<------JOUEURS------>")
+    print(Fore.RESET + "<------JOUEURS------>"
+                       "|                   |")
     for ip in data:
         print(Fore.BLUE + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
         if data[ip]["status"] == "ingame":
@@ -73,17 +74,27 @@ def get_party(client):
     client.send("/partylist".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
     data = json.loads(data)
-    print(Fore.RESET + "<------PARTIES------>")
+    print(Fore.RESET + "<------PARTIES------>"
+                       "|                   |")
     for p_id in data:
-        print(Fore.BLUE + "Partie n°" + p_id)
-        print(Fore.BLUE + "Joueurs : " + Fore.BLACK + data[p_id]["joueurs"])
-        if data[ip]["status"] == "ingame":
-            print(Fore.RED + data[ip]["status"] + " n°" + data[ip]["partie_id"])
-        else:
-            print(Fore.GREEN + data[ip]["status"])
-
+        print(Fore.BLUE + "| Partie n°" + p_id)
+        print(Fore.BLUE + "| Joueurs : " + Fore.BLACK + data[p_id]["joueurs"])
     print(Fore.RESET + "<------------------->")
 
+
+def question(client):
+    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
+                                                         {"name": "Rejoindre une partie", "value": "/join"}]).execute()
+    if action == "/join":
+        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
+        action = f"{action} {party_id}"
+
+    print("je veux faire " + action)
+
+    client.send(f"{action}".encode("utf-8"))
+    data = client.recv(4096).decode("utf-8")
+
+    print(data)
 
 def exit_game():
     utils.error_log("VOUS ALLEZ QUITTER")
@@ -182,46 +193,12 @@ if __name__ == "__main__":
     lobby_connection(client)
     get_player(client)
     get_party(client)
-
-
-
-    print(data)
-    if data == f"{pseudo} is connected to the lobby":
-        print("Connexion établie !")
-
-    # On récupère la liste des parties et des joueurs
-    client.send(b"/lobbylist")
-    data = client.recv(4096).decode("utf-8")
-    print("Liste des joueurs :")
-    rich.print_json(data)
-    print("-------------------")
-
-    client.send(b"/partylist")
-    data = client.recv(4096).decode("utf-8")
-    print("Liste des parties :")
-    rich.print_json(data)
-    print("-------------------")
-
-    # On demande au joueur ce qu'il veut faire
-    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
-                                                  {"name": "Rejoindre une partie", "value": "/join"}]).execute()
-
-    if action == "/join":
-        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
-        action = f"{action} {party_id}"
-
-    print("je veux faire " + action)
-
-    client.send(f"{action}".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-
-    print(data)
+    question(client)
 
     client.send(f"/wait".encode("utf-8"))
     data = client.recv(4096).decode("utf-8")
-    print(data)
     data = json.loads(data)
-    print(action)
+    print(data)
 
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
