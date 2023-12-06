@@ -30,7 +30,6 @@ class App:
     
     def draw(self):
         pyxel.cls(0)
-        print(self.draw_list[self.state])
         getattr(self, self.draw_list[self.state])()
 
     # Gets the username that the user chooses and sends it to the server
@@ -88,10 +87,10 @@ class App:
             self.delay_to_draw = 0
         else:
             self.delay_to_draw += 1
-        print('fin')
+            print('fin')
 
     def draw_waiting_other_player(self):
-        print('debut')
+        print('début')
         pyxel.cls(0)
         self.draw_text("Waiting...", (0, 0))
 
