@@ -1,12 +1,6 @@
-import time
-
 import pyxel
 import os
 import itertools as tool
-import json
-import socket
-from colorama import Fore, Style
-from InquirerPy import inquirer
 from utils import api
 from utils.utils import *
 
@@ -105,6 +99,7 @@ if __name__ == "__main__":
     get_player(client)
     get_party(client)
     question(client)
+    data = wait_people(client)
 
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
