@@ -7,7 +7,7 @@ import json
 import random
 from colorama import Fore, Style
 
-import utils.utils
+import utils
 
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -134,9 +134,10 @@ def handle_client(client_jouer: socket.socket, client_address):
             if not p_id:
                 client_jouer.send(json.dumps({"message": "error", "details": "Veuillez d'abord rejoindre une partie"}).encode("utf-8"))
             else:
+                utils.send_json(client_jouer, {"message": "/wait"})
                 while len(party[p_id]["joueurs"]) != 2:
                     # Il faut régler le fait qu'un client peut quitter ici
-                    data = utils.recv_json(client_jouer)
+                    data = utils.recv_simple(client_jouer)
                     if data == "/wait":
                         pass
                     # On attend qu'un joueur rejoigne la partie

@@ -108,10 +108,15 @@ def question(client):
 
 
 def wait_people(client):
-    client.send(f"/wait".encode("utf-8"))
-    with yaspin(Spinners.arc, text="Attente d'un autre joueur") as sp:
-        data = client.recv(4096).decode("utf-8")
+    print("Debug: WAITING PEOPLE")
+    data = {"message": "/wait"}
+    while data["message"] == "/wait":
+        client.send(f"/wait".encode("utf-8"))
+        print("On attend")
+        with yaspin(Spinners.arc, text="Attente d'un autre joueur") as sp:
+            data = client.recv(4096).decode("utf-8")
 
+    print("FINIII")
     data = json.loads(data)
     return data
 
