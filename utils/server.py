@@ -129,22 +129,21 @@ def handle_client(client_jouer: socket.socket, client_address):
                 client_jouer.send(json.dumps({"message": "error", "details": "Veuillez renseigner un idientifiant valide"}).encode("utf-8"))
 
         # Et là c'est quand le client est prêt à jouer et qu'il attend
-        elif data[0] == "/wait":
+        elif data[0] == "/waitpeople":
             p_id = lobby[client_address]["partie_id"]
             if not p_id:
                 client_jouer.send(json.dumps({"message": "error", "details": "Veuillez d'abord rejoindre une partie"}).encode("utf-8"))
             else:
-                utils.send_json(client_jouer, {"message": "/wait"})
                 while len(party[p_id]["joueurs"]) != 2:
+                    utils.send_json(client_jouer, {"message": "/waitpeople"})
                     # Il faut régler le fait qu'un client peut quitter ici
                     data = utils.recv_simple(client_jouer)
-                    if data == "/wait":
-                        pass
+                    if "/waitpeople" in data:
+                        print("IL ATTEND")
                     # On attend qu'un joueur rejoigne la partie
                     print("---ON ATTEND---")
                     print(party)
                     time.sleep(1)
-                    utils.send_json(client_jouer, {"message": "/wait"})
                 jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
 
@@ -158,7 +157,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = utils.recv_json(client_jouer)
-        if data == {}:
+        if data is None:
             client_jouer.close()
             continue
         print(f"Data from {client_address}\n {data}")
