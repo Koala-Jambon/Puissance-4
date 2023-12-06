@@ -1,5 +1,6 @@
 import itertools as tool
 
+
 #Return le teableau de jeu
 def board():
     return [[0 for _ in range(7)] for _ in range(6)]

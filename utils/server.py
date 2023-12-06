@@ -129,12 +129,16 @@ def handle_client(client_jouer: socket.socket, client_address):
         # Et là c'est quand le client est prêt à jouer et qu'il attend
         elif data[0] == "/wait":
             p_id = lobby[client_address]["partie_id"]
-            while len(party[p_id]["joueurs"]) != 2:
-                # On attend qu'un joueur rejoigne la partie
-                print("---ON ATTEND---")
-                print(party)
-                time.sleep(1)
-            jouer(p_id, client_jouer, client_address)
+            if not p_id:
+                client_jouer.send({"message": "error", "details": "Veuillez d'abord rejoindre une partie"})
+            else:
+                while len(party[p_id]["joueurs"]) != 2:
+                    # Il faut régler le fait qu'un client peut quitter ici
+                    # On attend qu'un joueur rejoigne la partie
+                    print("---ON ATTEND---")
+                    print(party)
+                    time.sleep(1)
+                jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
 
 
@@ -143,7 +147,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
+    to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client_jouer.recv(4096).decode("utf-8")
