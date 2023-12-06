@@ -30,6 +30,7 @@ class App:
     
     def draw(self):
         pyxel.cls(0)
+        print(self.draw_list[self.state])
         getattr(self, self.draw_list[self.state])()
 
     # Gets the username that the user chooses and sends it to the server
@@ -87,8 +88,10 @@ class App:
             self.delay_to_draw = 0
         else:
             self.delay_to_draw += 1
+        print('fin')
 
     def draw_waiting_other_player(self):
+        print('debut')
         pyxel.cls(0)
         self.draw_text("Waiting...", (0, 0))
 
@@ -103,7 +106,6 @@ class App:
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.check_free_parties():
             action = f"/join {self.party_choice_number}"
             self.party_interactions(action)
-            self.state = 2
         print(self.party_choice_number)
     
     # Draws the menu of selection of a party
