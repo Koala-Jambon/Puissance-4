@@ -46,7 +46,7 @@ class App:
                     self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 # Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
-                self.client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
+                send_json(self.client, {"message": "/play", "coup": self.choice_position - 1})
                 # On attend la réponse du serveur
                 data = self.client.recv(4096).decode("utf-8")
                 data = json.loads(data)
@@ -62,7 +62,7 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
-            self.client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
+            self.client.send(json.dumps({"message": "/waitgame", 'board': self.game.board}).encode("utf-8"))
             data = self.client.recv(4096).decode("utf-8")
             data = json.loads(data)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
@@ -96,11 +96,12 @@ class EcranFin:
 def run():
     os.system('clear')
     welcome()
-    client = server_connect("172.16.50.253", 62222)
+    client = server_connect("127.0.0.1", 62222)
     lobby_connection(client)
     get_player(client)
     get_party(client)
     question(client)
+    print("AVANT d'attendre")
     data = wait_people(client)
 
     App(data["joueurs"],  # Ip List
