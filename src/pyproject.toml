@@ -27,6 +27,9 @@ dependencies = [
     "InquirerPy"
 ]
 
+[project.scripts]
+koala = "timto_client:run"
+
 [project.urls]
 Homepage = "https://github.com/Koala-Jambon/Puissance-4"
 Issues = "https://github.com/Koala-Jambon/Puissance-4/issues/"

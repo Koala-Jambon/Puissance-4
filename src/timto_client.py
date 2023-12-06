@@ -91,7 +91,8 @@ class EcranFin:
     def __init__(self, winner, board):
         pass
 
-if __name__ == "__main__":
+
+def run():
     os.system('clear')
     welcome()
     client = server_connect("127.0.0.1", 62222)
@@ -105,3 +106,7 @@ if __name__ == "__main__":
         data["you"],  # Ip of the computer which is running this code
         data["board"],  # Current state of the board(normally it's blank)
         data["tour"])  # Ip of the player who has to play
+
+
+if __name__ == "__main__":
+    run()
