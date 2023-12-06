@@ -120,3 +120,27 @@ def exit_game():
     error_log("VOUS ALLEZ QUITTER")
     # os.system("shutdown -h now")
     exit()
+
+
+def send_json(client, data_dict):
+    try:
+        client.send(json.dumps(data_dict).encode("utf-8"))
+        return True
+    except OSError:
+        raise OSError("Erreur dans l'envoie d'un message")
+
+
+def recv_json(client: socket.socket):
+    try:
+        data = client.recv(1024).decode("utf-8")
+        return json.loads(data)
+    except OSError:
+        raise OSError("Problème réception du JSON")
+
+
+def recv_simple(client: socket.socket):
+    try:
+        data = client.recv(1024).decode("utf-8")
+        return data
+    except OSError:
+        raise OSError("Problème réception du message simple")
