@@ -147,7 +147,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
+    to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = client_jouer.recv(4096).decode("utf-8")
