@@ -9,7 +9,7 @@ import rich
 # Files to import
 from utils import api
 
-#Size of the screen, can be wathever you want ; 1.5 is recommanded
+#Size of the screen, can be wathever you want ; 1.5 is recommended
 size = 1.5
 
 class App:
@@ -19,8 +19,8 @@ class App:
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
         self.button = 1 # The number of the button the user is hovering over
-        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username"]
-        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username"]
+        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player"]
+        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player"]
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Power 4")
         pyxel.run(self.update, self.draw)
 
@@ -37,9 +37,9 @@ class App:
                    pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         for letter in range(26):
-            if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT):
+            if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT) and len(self.nickname) < 12:
                 self.nickname = self.nickname + alphabet[letter].upper()
-            elif pyxel.btnp(pyxel_key_letters[letter]):
+            elif pyxel.btnp(pyxel_key_letters[letter]) and len(self.nickname) < 12:
                 self.nickname = self.nickname + alphabet[letter]
 
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
@@ -68,7 +68,13 @@ class App:
             self.state = 0
 
     def draw_get_username(self):
-        self.draw_text(self.nickname, (0,0))
+        self.draw_text(self.nickname, (0/size, 440/size))
+
+    def update_waiting_other_player(self):
+        pass
+
+    def draw_waiting_other_player(self):
+        self.draw_text("Waiting...", (0, 0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
@@ -81,7 +87,7 @@ class App:
             action = f"/join {self.party_choice_number}"
             self.party_interactions(action)
             self.state = 2
-        #print(self.party_choice_number)
+        print(self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -102,9 +108,10 @@ class App:
         print(action)
 
         self.game__init__(data["joueurs"],  # Ip List
-                        data["you"],  # Ip of the computer which is running this code
-                        data["board"],  # Current state of the board(normally it's blank)
-                        data["tour"])  # Ip of the player who has to play
+                          data["you"],  # Ip of the computer which is running this code
+                          data["board"],  # Current state of the board(normally it's blank)
+                          data["tour"])  # Ip of the player who has to play
+        print('inited')
         self.state = 2
 
     # Watches the interactions beetween the user and the buttons of the main menu
@@ -241,6 +248,8 @@ class App:
                 'width2'
             ),
             "futur a" : ("letter1", 0, 10, 15, 0, 0),
+            
+
             "a" : (10, 15, 0, 0, 88, 0, 1),
             "b" : (9, 15, 80, 0, 80, 0, 1),
             "c" : (10, 15, 152, 0, 88, 0, 1),
