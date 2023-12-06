@@ -90,8 +90,6 @@ class App:
             print('fin')
 
     def draw_waiting_other_player(self):
-        print('début')
-        pyxel.cls(0)
         self.draw_text("Waiting...", (0, 0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
@@ -300,7 +298,7 @@ if __name__ == "__main__":
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
-    client.connect(("172.16.4.7", 62222))
+    client.connect(("172.16.50.253", 62222))
     
     print("Connexion au lobby...")
 
