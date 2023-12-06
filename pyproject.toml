@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "Koala_4_TIMTONIX_BUGXIT"
+version = "0.0.1"
+authors = [
+
+    { name="Alexandre Loubet", email="author@example.com" },
+    { name="Timothé Maurice", email="timtonix@icloud.com" },
+]
+description = "Un puissance 4 version hacker"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyxel",
+    "colorama",
+    "rich",
+    "yaspin",
+    "InquirerPy"
+]
+
+[project.urls]
+Homepage = "https://github.com/Koala-Jambon/Puissance-4"
+Issues = "https://github.com/Koala-Jambon/Puissance-4/issues/"
