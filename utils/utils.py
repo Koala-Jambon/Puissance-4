@@ -114,7 +114,6 @@ def wait_people(client):
         while data["message"] == "/waitpeople":
             client.send("/waitpeople".encode("utf-8"))
             data = recv_json(client)
-            print(data)
     return data
 
 
