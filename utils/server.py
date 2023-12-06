@@ -129,12 +129,16 @@ def handle_client(client_jouer: socket.socket, client_address):
         # Et là c'est quand le client est prêt à jouer et qu'il attend
         elif data[0] == "/wait":
             p_id = lobby[client_address]["partie_id"]
-            while len(party[p_id]["joueurs"]) != 2:
-                # On attend qu'un joueur rejoigne la partie
-                print("---ON ATTEND---")
-                print(party)
-                time.sleep(1)
-            jouer(p_id, client_jouer, client_address)
+            if not p_id:
+                client_jouer.send({"message": "error", "details": "Veuillez d'abord rejoindre une partie"})
+            else:
+                while len(party[p_id]["joueurs"]) != 2:
+                    # Il faut régler le fait qu'un client peut quitter ici
+                    # On attend qu'un joueur rejoigne la partie
+                    print("---ON ATTEND---")
+                    print(party)
+                    time.sleep(1)
+                jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
 
 

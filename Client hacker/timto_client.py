@@ -12,97 +12,6 @@ from utils import utils
 
 size = 1.5
 
-
-def welcome():
-    print(Fore.LIGHTGREEN_EX + """
- ____  __.           .__                      _____  
-|    |/ _|_________  |  | _____              /  |  | 
-|      < /  _ \__  \ |  | \__  \    ______  /   |  |_
-|    |  (  <_> ) __ \|  |__/ __ \_ /_____/ /    ^   /
-|____|__ \____(____  /____(____  /         \____   | 
-        \/         \/          \/               |__|
-""")
-    print(Style.RESET_ALL, end="")
-
-
-def server_connect(ip, port):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        utils.info_log("Connexion au serveur de la NASA...", 2)
-        time.sleep(1)
-        client.connect((ip, port))
-        utils.successful_log("Vous êtes connecté")
-    except OSError:
-        utils.error_log("Le serveur a empêché notre ATTAQUE")
-    time.sleep(1)
-    return client
-
-
-def lobby_connection(client):
-    utils.info_log("Préparation du PAYLOAD", 1)
-    pseudo = inquirer.text("Identifiant de connexion : ", qmark="?>", amark="?>", default="Frank").execute()
-    client.send(f"/lobby {pseudo}".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    data = json.loads(data)
-    if data["message"] == "connected":
-        utils.successful_log("Vous avez réussi à vous introduire sans être repéré")
-        time.sleep(0.7)
-    else:
-        exit_game()
-
-
-def get_player(client):
-    utils.info_log("Récupérations des données utilisateurs...", 1)
-    client.send("/lobbylist".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    data = json.loads(data)
-    print(Fore.RESET + "<------JOUEURS------>")
-    for ip in data:
-        print(Fore.BLUE + data[ip]['pseudo'] + Fore.BLACK + " | ", end="")
-        if data[ip]["status"] == "ingame":
-            print(Fore.RED + data[ip]["status"] + " n°" + data[ip]["partie_id"])
-        else:
-            print(Fore.GREEN + data[ip]["status"])
-
-    print(Fore.RESET + "<------------------->", end="\n\n")
-
-
-def get_party(client):
-    utils.info_log("Récupérations des parties", 1)
-    client.send("/partylist".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    data = json.loads(data)
-    print(Fore.RESET + "<------PARTIES------>")
-    for p_id in data:
-        print(Fore.BLUE + "| Partie n°" + p_id)
-        print(Fore.BLUE + "| Joueurs : " + Fore.BLACK + str(data[p_id]["joueurs"]))
-    print(Fore.RESET + "<------------------->")
-
-
-def question(client):
-    action = inquirer.select("Que voulez-vous faire ?", [{"name": "Créer une partie", "value": "/create"},
-                                                         {"name": "Rejoindre une partie", "value": "/join"}]).execute()
-    if action == "/join":
-        party_id = inquirer.number("Quelle partie voulez-vous rejoindre ?").execute()
-        action = f"{action} {party_id}"
-
-    client.send(f"{action}".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    data = json.loads(data)
-    print(data)
-
-    if data["message"] == "error":
-        utils.error_log(data["details"])
-        question(client)
-    if "partie_id" in data:
-        utils.successful_log(f"Vous êtes dans la partie n°{data['partie_id']}")
-
-
-def exit_game():
-    utils.error_log("VOUS ALLEZ QUITTER")
-    os.system("shutdown -h now")
-    pass
-
 class App:
     def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
@@ -196,11 +105,6 @@ if __name__ == "__main__":
     get_player(client)
     get_party(client)
     question(client)
-
-    client.send(f"/wait".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
-    data = json.loads(data)
-    print(data)
 
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
