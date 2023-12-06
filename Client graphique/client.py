@@ -107,7 +107,7 @@ class App:
     def draw_choose_party(self):
         buttons_coords = {
                           "x" : (500/size, 500/size, 500/size),
-                          "y" : (50/size, 400/size, 750/size),
+                          "y" : (83/size, 416/size, 748/size),
                           "w" : (int(920/size), int(920/size), int(920/size)),
                           "h" : (int(250/size), int(250/size), int(250/size))
                          }
