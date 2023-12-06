@@ -62,7 +62,7 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
-            self.client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
+            self.client.send(json.dumps({"message": "/waitgame", 'board': self.game.board}).encode("utf-8"))
             data = self.client.recv(4096).decode("utf-8")
             data = json.loads(data)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
