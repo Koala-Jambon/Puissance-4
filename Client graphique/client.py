@@ -97,11 +97,14 @@ class App:
         self.delay_to_draw = 0
         if pyxel.btnp(pyxel.KEY_UP) and self.party_choice_number != 0:
             self.party_choice_number += -1
-        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["free"]-1:
+        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["number"]-1:
             self.party_choice_number += 1
-        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.party_infos()["free"]:
+        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number+1 in self.party_infos()["free"]:
+            print("enter")
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
+        elif pyxel.btnp(pyxel.KEY_RETURN):
+            print("vatefaire", self.party_choice_number, self.party_infos()["free"])
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
