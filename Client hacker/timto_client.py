@@ -8,7 +8,7 @@ import socket
 from colorama import Fore, Style
 from InquirerPy import inquirer
 from utils import api
-from utils import utils
+from utils.utils import *
 
 size = 1.5
 
