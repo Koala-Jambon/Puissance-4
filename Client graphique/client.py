@@ -49,7 +49,7 @@ class App:
             client.send(f"/lobby {self.nickname}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
 
-            print(data)
+            print("Debug :", data)
             if data == f"{self.nickname} is connected to the lobby":
                 print("Connexion établie !")
 
@@ -68,54 +68,68 @@ class App:
         
             self.state = 0
 
+    # Draws the username chosen by the user
     def draw_get_username(self):
         self.draw_text(self.nickname, (0/size, 440/size))
 
+    # Waits for another player to connect
     def update_waiting_other_player(self):
         if self.delay_to_draw == 2:
             client.send(f"/wait".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
-            print(data)
+            print("Debug :", data)
             data = json.loads(data)
-            print('je vais inited')
             self.game__init__(data["joueurs"],  # Ip List
                             data["you"],  # Ip of the computer which is running this code
                             data["board"],  # Current state of the board(normally it's empty)
                             data["tour"])  # Ip of the player who has to play
-            print('inited')
             self.state = 2
             self.delay_to_draw = 0
         else:
             self.delay_to_draw += 1
-            print('fin')
 
+    # Draws a text telling the user to wait for another player
     def draw_waiting_other_player(self):
         self.draw_text("Waiting...", (0, 0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
         self.delay_to_draw = 0
-        print(self.party_choice_number)
-        if pyxel.btnp(pyxel.KEY_UP):
-            self.party_choice_number += 1
-        elif pyxel.btnp(pyxel.KEY_DOWN):
+        if pyxel.btnp(pyxel.KEY_UP) and self.party_choice_number != 0:
             self.party_choice_number += -1
+        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.number_of_parties()-1:
+            self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.check_free_parties():
-            action = f"/join {self.party_choice_number}"
+            action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
-        print(self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
-        pass
+        buttons_coords = {
+                          "x" : (500/size, 500/size, 500/size),
+                          "y" : (50/size, 400/size, 750/size),
+                          "w" : (int(920/size), int(920/size), int(920/size)),
+                          "h" : (int(250/size), int(250/size), int(250/size))
+                         }
+        for draw_button in range(len(buttons_coords["x"])):
+            if (draw_button+(self.party_choice_number//3)*3)+1 in self.check_empty_parties():
+                self.draw_text(f"{self.party_choice_number} Empty", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
+            elif (draw_button+(self.party_choice_number//3)*3)+1 in self.check_free_parties():
+                self.draw_text(f"{self.party_choice_number} Player", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
+            elif (draw_button+(self.party_choice_number//3)*3)+1 <= self.number_of_parties():
+                self.draw_text(f"{self.party_choice_number} Full", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
+            if draw_button == self.party_choice_number%3:
+                for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
+                    if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
+                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 5)
 
     # Sends to the server what the user wants to do (Create/Join) a party
     def party_interactions(self, action : str):
-        print("je veux faire " + action)
+        print("Debug : Je veux faire " + action)
         client.send(f"{action}".encode("utf-8"))
         data = client.recv(4096).decode("utf-8")
 
-        print(data)
+        print("Debug :", data)
         self.state = 4
         self.delay_to_draw = 0
 
@@ -136,8 +150,8 @@ class App:
 
     # Draws the main menu
     def draw_main_menu(self):
-        self.draw_text("Join", (750/size, int(450/size)))
-        self.draw_text("Create", (600/size, int(800/size)))
+        self.draw_text("join", (750/size, int(450/size)))
+        self.draw_text("create", (600/size, int(800/size)))
 
         buttons_coords = {
                           "x" : (20/size, 500/size, 500/size),
@@ -218,17 +232,34 @@ class App:
         client.send(b"/partylist")
         data = client.recv(4096).decode("utf-8")
         data = json.loads(data)
-        print(data)
+        #print("Debug :", data)
         free_party_list = []
         for game_id in range(len(data)):
             if len(data[str(game_id+1)]["joueurs"]) < 2:
-                free_party_list.append(game_id+1)
+                free_party_list.append(int(game_id+1))
         return free_party_list
+    
+    def check_empty_parties(self):
+        client.send(b"/partylist")
+        data = client.recv(4096).decode("utf-8")
+        data = json.loads(data)
+        #print("Debug :", data)
+        empty_party_list = []
+        for game_id in range(len(data)):
+            if len(data[str(game_id+1)]["joueurs"]) == 0:
+                empty_party_list.append(int(game_id+1))
+        return empty_party_list
+
+    def number_of_parties(self):
+        client.send(b"/partylist")
+        data = client.recv(4096).decode("utf-8")
+        data = json.loads(data)
+        #print("Debug :", data)
+        return len(data)
     
     # Starts the game with the expected values
     def game__init__(self, player_ip_list : list, player_ip, board : list, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
-        print('apied')
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
 
@@ -242,6 +273,7 @@ class App:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
             exit()
+
     
     def draw_text(self, text : str, coords : tuple):
         coords = list(coords)
@@ -287,7 +319,7 @@ class App:
                     pyxel.blt(coords[0]+w*8, coords[1]+h*8, letters_coords[letter][5], letters_coords[letter][2]+w*8, letters_coords[letter][3]+h*8, 8, 8)
                 coords[0] += letters_coords[letter][4]
             except KeyError:
-                print(letter)
+                pass
             
 # Connects to the lobby and then starts the game
 if __name__ == "__main__":
@@ -297,9 +329,13 @@ if __name__ == "__main__":
         os.system("cls")
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("Connexion au serveur...")
-    client.connect(("172.16.50.253", 62222))
+    #print("Debug : Connexion au serveur...")
+    try:
+        client.connect(("172.16.50.253", 62222))
+    except OSError:
+        print("Cannot connect to the server ; Try updating ; Try later")
+        exit()
     
-    print("Connexion au lobby...")
+    #print("Debug : Connexion au lobby...")
 
     App()
