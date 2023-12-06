@@ -109,7 +109,7 @@ def question(client):
 
 def wait_people(client):
     print("Debug: WAITING PEOPLE")
-    data = {"message": "/wait"}
+    data = {"message": "/waitpeople"}
     while data["message"] == "/waitpeople":
         client.send(f"/wait".encode("utf-8"))
         print("On attend")
@@ -138,6 +138,8 @@ def recv_json(client: socket.socket):
     try:
         data = client.recv(1024).decode("utf-8")
         return json.loads(data)
+    except json.JSONDecodeError:
+        pass
     except OSError:
         raise OSError("Problème réception du JSON")
 

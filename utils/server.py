@@ -157,14 +157,14 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
-        data = client_jouer.recv(4096).decode("utf-8")
-        if data == "":
+        data = utils.recv_json(client_jouer)
+        if data == {}:
             client_jouer.close()
             continue
         print(f"Data from {client_address}\n {data}")
-        if "/wait" in data:
-            data = data.split(" ", 1)
-            board = json.loads(data[1])["board"]
+
+        if data["message"] == "/waitgame":
+            board = data["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
                 time.sleep(1)
@@ -175,7 +175,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
-        if "/play" in data:
+        if data["message"] == "/play":
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")
                 client_jouer.send("Error : Pas ton tour connard".encode("utf-8"))
@@ -197,9 +197,9 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                         fin_partie(game,client_jouer)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
-                        client_jouer.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
+                        utils.send_json(client_jouer, {"message": "/waitgame", "board": nboard})
             except ValueError or KeyError:
-                client_jouer.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
+                client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "Veuillez entrer un bon numéro"}).encode("utf-8"))
 
 
 def fin_partie(game, client_in_end):
