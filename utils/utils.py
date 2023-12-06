@@ -109,9 +109,11 @@ def question(client):
 
 def wait_people(client):
     client.send(f"/wait".encode("utf-8"))
-    data = client.recv(4096).decode("utf-8")
+    with yaspin(Spinners.arc, text="Attente d'un autre joueur") as sp:
+        data = client.recv(4096).decode("utf-8")
+
     data = json.loads(data)
-    print(data)
+    return data
 
 
 def exit_game():
