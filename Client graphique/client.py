@@ -15,13 +15,14 @@ size = 1.5
 class App:
 
     def __init__(self): 
+        self.delay_to_draw = 0
         self.state = 3 # State of the game ; Determines what the game has to draw/check
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
         self.button = 1 # The number of the button the user is hovering over
         self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player"]
         self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player"]
-        pyxel.init(int(1920 / size), int(1080 / size), title=f"Power 4")
+        pyxel.init(int(1920 / size), int(1080 / size), title=f"Koala-4")
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -71,13 +72,29 @@ class App:
         self.draw_text(self.nickname, (0/size, 440/size))
 
     def update_waiting_other_player(self):
-        pass
+        if self.delay_to_draw == 2:
+            client.send(f"/wait".encode("utf-8"))
+            data = client.recv(4096).decode("utf-8")
+            print(data)
+            data = json.loads(data)
+            print('je vais inited')
+            self.game__init__(data["joueurs"],  # Ip List
+                            data["you"],  # Ip of the computer which is running this code
+                            data["board"],  # Current state of the board(normally it's empty)
+                            data["tour"])  # Ip of the player who has to play
+            print('inited')
+            self.state = 2
+            self.delay_to_draw = 0
+        else:
+            self.delay_to_draw += 1
 
     def draw_waiting_other_player(self):
+        pyxel.cls(0)
         self.draw_text("Waiting...", (0, 0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
+        self.delay_to_draw = 0
         print(self.party_choice_number)
         if pyxel.btnp(pyxel.KEY_UP):
             self.party_choice_number += 1
@@ -100,19 +117,8 @@ class App:
         data = client.recv(4096).decode("utf-8")
 
         print(data)
-
-        client.send(f"/wait".encode("utf-8"))
-        data = client.recv(4096).decode("utf-8")
-        print(data)
-        data = json.loads(data)
-        print(action)
-
-        self.game__init__(data["joueurs"],  # Ip List
-                          data["you"],  # Ip of the computer which is running this code
-                          data["board"],  # Current state of the board(normally it's blank)
-                          data["tour"])  # Ip of the player who has to play
-        print('inited')
-        self.state = 2
+        self.state = 4
+        self.delay_to_draw = 0
 
     # Watches the interactions beetween the user and the buttons of the main menu
     def update_main_menu(self):
@@ -135,16 +141,16 @@ class App:
         self.draw_text("Create", (600/size, int(800/size)))
 
         buttons_coords = {
-                          "x" : [20/size, 500/size, 500/size],
-                          "y" : [20/size, 400/size, 750/size],
-                          "w" : [int(100/size), int(920/size), int(920/size)],
-                          "h" : [int(100/size), int(250/size), int(250/size)]
+                          "x" : (20/size, 500/size, 500/size),
+                          "y" : (20/size, 400/size, 750/size),
+                          "w" : (int(100/size), int(920/size), int(920/size)),
+                          "h" : (int(100/size), int(250/size), int(250/size))
                          }
         for draw_button in range(len(buttons_coords["x"])):
             if draw_button == self.button:
                 for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
                     if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
-                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 1)
+                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 5)
             else:
                 for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
                     if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
@@ -153,40 +159,43 @@ class App:
 
     # Checks if the player has played/received a moove
     def update_in_game(self):
-        if (self.game.player_turn_number == self.player_number):
-            if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
-                self.choice_position += 1
-            elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
-                self.choice_position += -1
-            elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(
-                    self.choice_position - 1) == True:
-                self.game.drop_piece(self.choice_position - 1)
-                client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
-                # Waiting for the answer of the server
+        if self.delay_to_draw == 2:
+            if (self.game.player_turn_number == self.player_number):
+                if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
+                    self.choice_position += 1
+                elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
+                    self.choice_position += -1
+                elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(
+                        self.choice_position - 1) == True:
+                    self.game.drop_piece(self.choice_position - 1)
+                    client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
+                    # Waiting for the answer of the server
+                    data = client.recv(4096).decode("utf-8")
+                    data = json.loads(data)
+                    print(f'{data} quand on joue')
+                    # Updates the board
+                    self.game.board = data["board"]
+                    if "/wait" in data["message"]:
+                        print('/wait')
+                        self.wait = True
+                    else:
+                        self.game.change_player_turn()
+                        self.calculate_endgame(data)
+                    self.choice_position = 0
+            else:
+                # On attend le coup de l'autre joueur
+                client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
-                print(f'{data} quand on joue')
+                print(f"Debug : |On attend le coup de l'autre| {data} ")
                 # Updates the board
                 self.game.board = data["board"]
-                if "/wait" in data["message"]:
-                    print('/wait')
-                    self.wait = True
-                else:
-                    self.game.change_player_turn()
-                    self.calculate_endgame(data)
-                self.choice_position = 0
+                # Checks the game has ended ; If yes then tells the user why
+                self.calculate_endgame(data)
+                # Changes the player who has to play
+                self.game.change_player_turn()
         else:
-            # On attend le coup de l'autre joueur
-            client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
-            data = client.recv(4096).decode("utf-8")
-            data = json.loads(data)
-            print(f"Debug : |On attend le coup de l'autre| {data} ")
-            # Updates the board
-            self.game.board = data["board"]
-            # Checks the game has ended ; If yes then tells the user why
-            self.calculate_endgame(data)
-            # Changes the player who has to play
-            self.game.change_player_turn()
+            self.delay_to_draw += 1
 
     # Draws the board in game
     def draw_in_game(self):
@@ -220,6 +229,7 @@ class App:
     # Starts the game with the expected values
     def game__init__(self, player_ip_list : list, player_ip, board : list, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
+        print('apied')
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
 
@@ -289,7 +299,7 @@ if __name__ == "__main__":
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
-    client.connect(("172.16.50.253", 62222))
+    client.connect(("172.16.4.7", 62222))
     
     print("Connexion au lobby...")
 
