@@ -7,10 +7,11 @@ from utils.utils import *
 size = 1.5
 
 class App:
-    def __init__(self, player_ip_list, player_ip, board, player_turn_ip):
+    def __init__(self, player_ip_list, player_ip, board, player_turn_ip, client):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
+        self.client = client
         pyxel.init(int(1920 / size), int(1080 / size), title=f"{player_ip}")
         pyxel.run(self.in_game_update, self.draw)
 
@@ -45,9 +46,9 @@ class App:
                     self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 # Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
-                client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
+                self.client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
                 # On attend la réponse du serveur
-                data = client.recv(4096).decode("utf-8")
+                data = self.client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f'{data} quand on joue')
                 # Mise à jour du plateau
@@ -61,8 +62,8 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
-            client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
-            data = client.recv(4096).decode("utf-8")
+            self.client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
+            data = self.client.recv(4096).decode("utf-8")
             data = json.loads(data)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
             # On update le board
@@ -95,7 +96,7 @@ class EcranFin:
 def run():
     os.system('clear')
     welcome()
-    client = server_connect("127.0.0.1", 62222)
+    client = server_connect("172.16.50.253", 62222)
     lobby_connection(client)
     get_player(client)
     get_party(client)
@@ -105,7 +106,8 @@ def run():
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
         data["board"],  # Current state of the board(normally it's blank)
-        data["tour"])  # Ip of the player who has to play
+        data["tour"],
+        client)  # Ip of the player who has to play
 
 
 if __name__ == "__main__":
