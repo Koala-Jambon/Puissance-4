@@ -157,6 +157,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = utils.recv_json(client_jouer)
+        print(f"Réception de |{data}| par {client_address}")
         if data is None:
             client_jouer.close()
             continue
@@ -181,8 +182,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
                 continue
             try:
-                data = data.split()
-                colonne = int(data[1])
+                colonne = int(data["coup"])
                 if colonne < 0:
                     colonne = 0
                 if colonne > 6:

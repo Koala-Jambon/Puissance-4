@@ -46,7 +46,7 @@ class App:
                     self.choice_position - 1) == True:
                 self.game.drop_piece(self.choice_position - 1)
                 # Envoie (self.choice_position-1) au serveur et récupère toute les infos du serv
-                self.client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
+                send_json(self.client, {"message": "/play", "coup": self.choice_position - 1})
                 # On attend la réponse du serveur
                 data = self.client.recv(4096).decode("utf-8")
                 data = json.loads(data)
