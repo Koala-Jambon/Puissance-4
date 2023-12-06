@@ -68,27 +68,27 @@ class App:
             self.state = 0
 
     def draw_get_username(self):
-        self.draw_text(self.nickname, [0,0])
+        self.draw_text(self.nickname, (0,0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
-        free_party_list = self.check_free_parties()
+        print(self.party_choice_number)
         if pyxel.btnp(pyxel.KEY_UP):
             self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_DOWN):
             self.party_choice_number += -1
-        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in free_party_list:
+        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.check_free_parties():
             action = f"/join {self.party_choice_number}"
             self.party_interactions(action)
             self.state = 2
-        print(self.party_choice_number)
+        #print(self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
         pass
 
     # Sends to the server what the user wants to do (Create/Join) a party
-    def party_interactions(self, action):
+    def party_interactions(self, action : str):
         print("je veux faire " + action)
         client.send(f"{action}".encode("utf-8"))
         data = client.recv(4096).decode("utf-8")
@@ -101,7 +101,7 @@ class App:
         data = json.loads(data)
         print(action)
 
-        self.game_init(data["joueurs"],  # Ip List
+        self.game__init__(data["joueurs"],  # Ip List
                         data["you"],  # Ip of the computer which is running this code
                         data["board"],  # Current state of the board(normally it's blank)
                         data["tour"])  # Ip of the player who has to play
@@ -124,8 +124,8 @@ class App:
 
     # Draws the main menu
     def draw_main_menu(self):
-        self.draw_text("Join", [750/size, int(450/size)])
-        self.draw_text("Create", [600/size, int(800/size)])
+        self.draw_text("Join", (750/size, int(450/size)))
+        self.draw_text("Create", (600/size, int(800/size)))
 
         buttons_coords = {
                           "x" : [20/size, 500/size, 500/size],
@@ -195,20 +195,23 @@ class App:
         if self.game.player_turn_number == self.player_number:
             pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size,
                        2 * (self.player_number - 1) + 8)
+        else:
+            self.draw_text("Waiting...", (0, 0))
 
-    # Returns a list of all the parties with less than 2 players in it
+    # Returns a list of all the parties with less than 2 players in them
     def check_free_parties(self):
         client.send(b"/partylist")
         data = client.recv(4096).decode("utf-8")
         data = json.loads(data)
+        print(data)
         free_party_list = []
         for game_id in range(len(data)):
             if len(data[str(game_id+1)]["joueurs"]) < 2:
-                free_party_list.append(game_id)
+                free_party_list.append(game_id+1)
         return free_party_list
     
     # Starts the game with the expected values
-    def game__init__(self, player_ip_list, player_ip, board, player_turn_ip):
+    def game__init__(self, player_ip_list : list, player_ip, board : list, player_turn_ip):
         self.game = api.Game(player_ip_list, board, player_turn_ip)
         self.player_number = self.game.ip_to_number(player_ip)
         self.choice_position = 0
@@ -224,29 +227,40 @@ class App:
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
             exit()
     
-    def draw_text(self, text : str, coords : list):
+    def draw_text(self, text : str, coords : tuple):
+        coords = list(coords)
         text = text.lower()
         letters_coords = {
-            "a" : [10, 15, 0, 0, 88, 0, 1],
-            "b" : [9, 15, 80, 0, 80, 0, 1],
-            "c" : [10, 15, 152, 0, 88, 0, 1],
-            "d" : [9, 15, 0, 120, 80, 0, 1],
-            "e" : [10, 15, 88, 120, 96, 0, 1],
-            "f" : [6, 15, 172, 120, 56, 0, 1],
-            "g" : [9, 15, 0, 0, 80, 1, 1],
-            "h" : [9, 15, 88, 0, 80, 1, 1],
-            "i" : [2, 15, 184, 0, 24, 1, 1],
-            "j" : [4, 15, 0, 120, 40, 1, 1],
-            "k" : [10, 15, 48, 120, 88, 1, 1],
-            "l" : [3, 15, 128, 120, 32, 1, 1],
-            "m" : [14, 15, 0, 0, 120, 2, 1],
-            "n" : [10, 15, 128, 0, 96, 2, 1],
-            "o" : [10, 15, 0, 128, 96, 2, 1],
-            "p" : [10, 15, 88, 128, 88, 2, 1],
-            "q" : [9, 15, 176, 128, 80, 2, 1],
-            "r" : [6, 15, 0, 0, 56, 0, 2],
-            "s" : [9, 15, 48, 0, 80, 0, 2],
-            "t" : [5, 15, 120, 0, 48, 0, 2]
+            "exemple" : (
+                'file',
+                'image',
+                'width',
+                'height',
+                'from-x',
+                'from-y',
+                'width2'
+            ),
+            "futur a" : ("letter1", 0, 10, 15, 0, 0),
+            "a" : (10, 15, 0, 0, 88, 0, 1),
+            "b" : (9, 15, 80, 0, 80, 0, 1),
+            "c" : (10, 15, 152, 0, 88, 0, 1),
+            "d" : (9, 15, 0, 120, 80, 0, 1),
+            "e" : (10, 15, 88, 120, 96, 0, 1),
+            "f" : (6, 15, 172, 120, 56, 0, 1),
+            "g" : (9, 15, 0, 0, 80, 1, 1),
+            "h" : (9, 15, 88, 0, 80, 1, 1),
+            "i" : (2, 15, 184, 0, 24, 1, 1),
+            "j" : (4, 15, 0, 120, 40, 1, 1),
+            "k" : (10, 15, 48, 120, 88, 1, 1),
+            "l" : (3, 15, 128, 120, 32, 1, 1),
+            "m" : (14, 15, 0, 0, 120, 2, 1),
+            "n" : (10, 15, 128, 0, 96, 2, 1),
+            "o" : (10, 15, 0, 128, 96, 2, 1),
+            "p" : (10, 15, 88, 128, 88, 2, 1),
+            "q" : (9, 15, 176, 128, 80, 2, 1),
+            "r" : (6, 15, 0, 0, 56, 0, 2),
+            "s" : (9, 15, 48, 0, 80, 0, 2),
+            "t" : (5, 15, 120, 0, 48, 0, 2)
         }
         for letter in text:
             try:
@@ -259,11 +273,14 @@ class App:
             
 # Connects to the lobby and then starts the game
 if __name__ == "__main__":
-    os.system('cls')
+    if os.name == "posix":
+        os.system("clear")
+    else:
+        os.system("cls")
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("Connexion au serveur...")
-    client.connect(("192.168.1.16", 62222))
+    client.connect(("172.16.50.253", 62222))
     
     print("Connexion au lobby...")
 
