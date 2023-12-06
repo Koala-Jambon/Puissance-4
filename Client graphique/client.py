@@ -15,13 +15,13 @@ size = 1.5
 class App:
 
     def __init__(self): 
+        self.delay_to_draw = 0
         self.state = 3 # State of the game ; Determines what the game has to draw/check
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
         self.button = 1 # The number of the button the user is hovering over
-        self.delay_to_draw = 0 # Used to make delay so Pyxel can draw before getting stuck in an infinite loop
-        self.update_list = ("update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player")
-        self.draw_list = ("draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player")
+        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player"]
+        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player"]
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Koala-4")
         pyxel.run(self.update, self.draw)
 
@@ -35,17 +35,20 @@ class App:
     # Gets the username that the user chooses and sends it to the server
     def update_get_username(self):
         pyxel_key_letters = [pyxel.KEY_A,pyxel.KEY_B,pyxel.KEY_C,pyxel.KEY_D,pyxel.KEY_E,pyxel.KEY_F,pyxel.KEY_G,pyxel.KEY_H,pyxel.KEY_I,pyxel.KEY_J,pyxel.KEY_K,pyxel.KEY_L,pyxel.KEY_M,
-                             pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
-        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                   pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
         for letter in range(26):
-            if pyxel.btnp(pyxel_key_letters[letter]):
+            if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT) and len(self.nickname) < 12:
+                self.nickname = self.nickname + alphabet[letter].upper()
+            elif pyxel.btnp(pyxel_key_letters[letter]) and len(self.nickname) < 12:
                 self.nickname = self.nickname + alphabet[letter]
+
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
             self.nickname = self.nickname[:-1]
         if pyxel.btnp(pyxel.KEY_RETURN):
             client.send(f"/lobby {self.nickname}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
-            
+
             print("Debug :", data)
             if data == f"{self.nickname} is connected to the lobby":
                 print("Connexion établie !")
@@ -53,8 +56,6 @@ class App:
             # We get the list of parties and players
             client.send(b"/lobbylist")
             data = client.recv(4096).decode("utf-8")
-            
-            '''
             print("Liste des joueurs :")
             rich.print_json(data)
             print("-------------------")
@@ -64,13 +65,12 @@ class App:
             print("Liste des parties :")
             rich.print_json(data)
             print("-------------------")
-            '''
-            
+        
             self.state = 0
 
     # Draws the username chosen by the user
     def draw_get_username(self):
-        self.draw_text(self.nickname, (0/size, 440/size))#Coords have to be changed in order to put the text in the center of the screen
+        self.draw_text(self.nickname, (0/size, 440/size))
 
     # Waits for another player to connect
     def update_waiting_other_player(self):
@@ -97,9 +97,9 @@ class App:
         self.delay_to_draw = 0
         if pyxel.btnp(pyxel.KEY_UP) and self.party_choice_number != 0:
             self.party_choice_number += -1
-        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.number_of_parties()-1:
+        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["free"]-1:
             self.party_choice_number += 1
-        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.check_free_parties():
+        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number in self.party_infos()["free"]:
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
     
@@ -107,17 +107,18 @@ class App:
     def draw_choose_party(self):
         buttons_coords = {
                           "x" : (500/size, 500/size, 500/size),
-                          "y" : (83/size, 416/size, 748/size),
+                          "y" : (50/size, 400/size, 750/size),
                           "w" : (int(920/size), int(920/size), int(920/size)),
                           "h" : (int(250/size), int(250/size), int(250/size))
                          }
         for draw_button in range(len(buttons_coords["x"])):
-            if (draw_button+(self.party_choice_number//3)*3)+1 in self.check_empty_parties():
-                self.draw_text(f"{self.party_choice_number} Empty", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
-            elif (draw_button+(self.party_choice_number//3)*3)+1 in self.check_free_parties():
-                self.draw_text(f"{self.party_choice_number} Player", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
-            elif (draw_button+(self.party_choice_number//3)*3)+1 <= self.number_of_parties():
-                self.draw_text(f"{self.party_choice_number} Full", (int(600/size), int(buttons_coords["y"][draw_button]+50/size)))
+            button_constant = (draw_button+(self.party_choice_number//3)*3)+1
+            if button_constant in self.party_infos()["empty"]:
+                self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+            elif button_constant in self.party_infos()["free"]:
+                self.draw_text(f"{button_constant}-Player", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+            elif button_constant <= self.party_infos()["number"]:
+                self.draw_text(f"{button_constant}-Full", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             if draw_button == self.party_choice_number%3:
                 for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
                     if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
@@ -150,8 +151,8 @@ class App:
 
     # Draws the main menu
     def draw_main_menu(self):
-        self.draw_text("join", (750/size, int(450/size)))
-        self.draw_text("create", (600/size, int(800/size)))
+        self.draw_text("Join", (750/size, int(450/size)))
+        self.draw_text("Create", (600/size, int(800/size)))
 
         buttons_coords = {
                           "x" : (20/size, 500/size, 500/size),
@@ -228,34 +229,35 @@ class App:
             self.draw_text("Waiting...", (0, 0))
 
     # Returns a list of all the parties with less than 2 players in them
-    def check_free_parties(self):
+    def party_infos(self):
         client.send(b"/partylist")
         data = client.recv(4096).decode("utf-8")
         data = json.loads(data)
         #print("Debug :", data)
         free_party_list = []
+        empty_party_list = []
         for game_id in range(len(data)):
             if len(data[str(game_id+1)]["joueurs"]) < 2:
                 free_party_list.append(int(game_id+1))
-        return free_party_list
-    
-    def check_empty_parties(self):
-        client.send(b"/partylist")
-        data = client.recv(4096).decode("utf-8")
-        data = json.loads(data)
-        #print("Debug :", data)
-        empty_party_list = []
         for game_id in range(len(data)):
             if len(data[str(game_id+1)]["joueurs"]) == 0:
                 empty_party_list.append(int(game_id+1))
-        return empty_party_list
-
-    def number_of_parties(self):
-        client.send(b"/partylist")
+        """        
+        client.send(b"/lobbylist")
         data = client.recv(4096).decode("utf-8")
-        data = json.loads(data)
-        #print("Debug :", data)
-        return len(data)
+        print(data)
+        print(type(data))
+        for player in data.items():
+            print(player)
+        """
+        party_infos = {
+                        "empty" : empty_party_list,
+                        "free" : free_party_list,
+                        "number" : len(data),
+                        "players_list" : "player"
+                      }
+        
+        return party_infos
     
     # Starts the game with the expected values
     def game__init__(self, player_ip_list : list, player_ip, board : list, player_turn_ip):
@@ -288,38 +290,53 @@ class App:
                 'from-y',
                 'width2'
             ),
-            "futur a" : ("letter1", 0, 10, 15, 0, 0),
-            
-
-            "a" : (10, 15, 0, 0, 88, 0, 1),
-            "b" : (9, 15, 80, 0, 80, 0, 1),
-            "c" : (10, 15, 152, 0, 88, 0, 1),
-            "d" : (9, 15, 0, 120, 80, 0, 1),
-            "e" : (10, 15, 88, 120, 96, 0, 1),
-            "f" : (6, 15, 172, 120, 56, 0, 1),
-            "g" : (9, 15, 0, 0, 80, 1, 1),
-            "h" : (9, 15, 88, 0, 80, 1, 1),
-            "i" : (2, 15, 184, 0, 24, 1, 1),
-            "j" : (4, 15, 0, 120, 40, 1, 1),
-            "k" : (10, 15, 48, 120, 88, 1, 1),
-            "l" : (3, 15, 128, 120, 32, 1, 1),
-            "m" : (14, 15, 0, 0, 120, 2, 1),
-            "n" : (10, 15, 128, 0, 96, 2, 1),
-            "o" : (10, 15, 0, 128, 96, 2, 1),
-            "p" : (10, 15, 88, 128, 88, 2, 1),
-            "q" : (9, 15, 176, 128, 80, 2, 1),
-            "r" : (6, 15, 0, 0, 56, 0, 2),
-            "s" : (9, 15, 48, 0, 80, 0, 2),
-            "t" : (5, 15, 120, 0, 48, 0, 2)
+            "a" : ("letter1", 0, 85, 99, 0, 0),
+            "b" : ("letter1", 0, 72, 100, 85, 0),
+            "c" : ("letter1", 0, 77, 100, 157, 0),
+            "d" : ("letter1", 0, 82, 101, 0, 100),
+            "e" : ("letter1", 0, 62, 99, 82, 102),
+            "f" : ("letter1", 0, 62, 98, 144, 102),
+            "g" : ("letter1", 1, 82, 101, 0, 0),
+            "h" : ("letter1", 1, 76, 99, 82, 0),
+            "i" : ("letter1", 1, 13, 99, 158, 0),
+            "j" : ("letter1", 1, 43, 100, 171, 0),
+            "k" : ("letter1", 1, 70, 99, 0, 101),
+            "l" : ("letter1", 1, 61, 98, 70, 101),
+            "m" : ("letter1", 1, 100, 99, 131, 100),
+            "n" : ("letter1", 2, 77, 99, 0, 0),
+            "o" : ("letter1", 2, 92, 101, 77, 0),
+            "p" : ("letter1", 2, 69, 100, 169, 0),
+            "q" : ("letter1", 2, 97, 124, 0, 99),
+            "r" : ("letter1", 2, 74, 100, 98, 101),
+            "s" : ("letter1", 2, 67, 101, 172, 101),
+            "t" : ("letter2", 0, 76, 98, 0, 0),
+            "u" : ("letter2", 0, 76, 100, 76, 0),
+            "v" : ("letter2", 0, 83, 99, 152, 0),
+            "w" : ("letter2", 0, 115, 98, 0, 108),
+            "x" : ("letter2", 0, 79, 99, 115, 108),
+            "y" : ("letter2", 1, 80, 99, 0, 0),
+            "z" : ("letter2", 1, 73, 97, 80, 0),
+            "1" : ("letter2", 1, 39, 98, 153, 0),
+            "2" : ("letter2", 1, 65, 99, 192, 0),
+            "3" : ("letter2", 1, 67, 101, 0, 99),
+            "4" : ("letter2", 1, 79, 100, 67, 99),
+            "5" : ("letter2", 1, 67, 101, 146, 99),
+            "6" : ("letter2", 2, 71, 100, 0, 0),
+            "7" : ("letter2", 2, 66, 98, 71, 0),
+            "8" : ("letter2", 2, 73, 100, 137, 0),
+            "9" : ("letter2", 2, 72, 101, 0, 102),
+            "0" : ("letter2", 2, 76, 101, 72, 102),
+            "-" : ("letter2", 2, 45, 63, 148, 102),
+            "." : ("letter2", 2, 17, 84, 193, 102)
         }
         for letter in text:
             try:
-                pyxel.load(f"letter{letters_coords[letter][6]}.pyxres")
-                for w, h in tool.product(range(letters_coords[letter][0]), range(letters_coords[letter][1])):
-                    pyxel.blt(coords[0]+w*8, coords[1]+h*8, letters_coords[letter][5], letters_coords[letter][2]+w*8, letters_coords[letter][3]+h*8, 8, 8)
-                coords[0] += letters_coords[letter][4]
+                pyxel.load(f"{letters_coords[letter][0]}.pyxres")
+                pyxel.blt(coords[0], coords[1], letters_coords[letter][1], letters_coords[letter][4], letters_coords[letter][5], letters_coords[letter][2], letters_coords[letter][3])
+                coords[0] += letters_coords[letter][2] + 8
             except KeyError:
-                pass
+                if letter == " ":
+                    coords[0] += 32      
             
 # Connects to the lobby and then starts the game
 if __name__ == "__main__":
@@ -331,7 +348,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.50.253", 62222))
+        client.connect(("192.168.1.16", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
