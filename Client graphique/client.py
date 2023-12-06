@@ -20,8 +20,8 @@ class App:
         self.nickname = "" # Nickname chosen by the user ; By default empty
         self.button = 1 # The number of the button the user is hovering over
         self.delay_to_draw = 0 # Used to make delay so Pyxel can draw before getting stuck in an infinite loop
-        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player"]
-        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player"]
+        self.update_list = ("update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player")
+        self.draw_list = ("draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player")
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Koala-4")
         pyxel.run(self.update, self.draw)
 
@@ -35,7 +35,7 @@ class App:
     # Gets the username that the user chooses and sends it to the server
     def update_get_username(self):
         pyxel_key_letters = [pyxel.KEY_A,pyxel.KEY_B,pyxel.KEY_C,pyxel.KEY_D,pyxel.KEY_E,pyxel.KEY_F,pyxel.KEY_G,pyxel.KEY_H,pyxel.KEY_I,pyxel.KEY_J,pyxel.KEY_K,pyxel.KEY_L,pyxel.KEY_M,
-                   pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
+                             pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
         alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         for letter in range(26):
             if pyxel.btnp(pyxel_key_letters[letter]):
