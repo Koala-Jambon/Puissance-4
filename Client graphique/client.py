@@ -337,6 +337,15 @@ class App:
             "-" : ("letter2", 2, 45, 63, 148, 102),
             "." : ("letter2", 2, 17, 84, 193, 102)
         }
+        if coords[0] = "center":
+            save_coords = [0,0]
+            for letter in text:
+                try:
+                    save_coords[0] += letters_coords[letter][2] + 8
+                except KeyError:
+                    if letter == " ":
+                        coords[0] += 32
+            coords[0] = ((1920-save_coords[0])/2)/size
         for letter in text:
             try:
                 pyxel.load(f"{letters_coords[letter][0]}.pyxres")
