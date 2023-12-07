@@ -108,6 +108,7 @@ class App:
             self.party_interactions(action)
         elif pyxel.btnp(pyxel.KEY_RETURN):
             print("Debug : vatefaire", self.party_choice_number, self.party_infos()["free"])
+        print(self.party_infos()["number"])
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -251,7 +252,7 @@ class App:
             elif len(data[str(game_id+1)]["joueurs"]) == 1:
                 free_party_list.append(game_id+1)
 
-           
+        party_number = len(data)
         client.send(b"/lobbylist")
         data = client.recv(4096).decode("utf-8")
         data = json.loads(data)
@@ -264,7 +265,7 @@ class App:
         party_infos = {
                         "empty" : empty_party_list,
                         "free" : free_party_list,
-                        "number" : len(data),
+                        "number" : party_number,
                         "players_list" : players_alone_list
                       }
         
@@ -351,7 +352,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.4.7", 62222))
+        client.connect(("172.16.50.253", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
