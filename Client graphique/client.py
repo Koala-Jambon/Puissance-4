@@ -8,6 +8,7 @@ import rich
 
 # Files to import
 from utils import api
+from utils.utils import *
 
 #Size of the screen, can be wathever you want ; 1.5 is recommended
 size = 1.5
@@ -75,14 +76,16 @@ class App:
     # Waits for another player to connect
     def update_waiting_other_player(self):
         if self.delay_to_draw == 2:
-            client.send(f"/wait".encode("utf-8"))
-            data = client.recv(4096).decode("utf-8")
-            print("Debug :", data)
-            data = json.loads(data)
+            data = {"message" : "/waitpeople"}
+            while data["message"] == "/waitpeople":
+                client.send(f"/waitpeople".encode("utf-8"))
+                data = recv_json(client)
+                print("Debug :", data)
+
             self.game__init__(data["joueurs"],  # Ip List
-                            data["you"],  # Ip of the computer which is running this code
-                            data["board"],  # Current state of the board(normally it's empty)
-                            data["tour"])  # Ip of the player who has to play
+                              data["you"],  # Ip of the computer which is running this code
+                              data["board"],  # Current state of the board(normally it's empty)
+                              data["tour"])  # Ip of the player who has to play
             self.state = 2
             self.delay_to_draw = 0
         else:
@@ -104,7 +107,7 @@ class App:
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
         elif pyxel.btnp(pyxel.KEY_RETURN):
-            print("vatefaire", self.party_choice_number, self.party_infos()["free"])
+            print("Debug : vatefaire", self.party_choice_number, self.party_infos()["free"])
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -119,7 +122,10 @@ class App:
             if button_constant in self.party_infos()["empty"]:
                 self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant in self.party_infos()["free"]:
-                self.draw_text(f"{button_constant}-Player", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                try:
+                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                except:
+                    self.draw_text(f"{button_constant}-Error", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant <= self.party_infos()["number"]:
                 self.draw_text(f"{button_constant}-Full", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             if draw_button == self.party_choice_number%3:
@@ -185,23 +191,22 @@ class App:
                 elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(
                         self.choice_position - 1) == True:
                     self.game.drop_piece(self.choice_position - 1)
-                    client.send(f"/play {self.choice_position - 1}".encode("utf-8"))
+                    send_json(client, {"message": "/play", "coup": self.choice_position -1})
                     # Waiting for the answer of the server
                     data = client.recv(4096).decode("utf-8")
                     data = json.loads(data)
                     print(f'{data} quand on joue')
                     # Updates the board
                     self.game.board = data["board"]
-                    if "/wait" in data["message"]:
-                        print('/wait')
-                        self.wait = True
+                    if "/waitgame" in data["message"]:
+                        print('Debug : /waitgame')
                     else:
                         self.game.change_player_turn()
                         self.calculate_endgame(data)
                     self.choice_position = 0
             else:
                 # On attend le coup de l'autre joueur
-                client.send(f"/wait {json.dumps({'board': self.game.board})}".encode("utf-8"))
+                send_json(client=client, data_dict={"message": "/waitgame", "board": self.game.board})
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
@@ -240,24 +245,27 @@ class App:
         free_party_list = []
         empty_party_list = []
         for game_id in range(len(data)):
-            if len(data[str(game_id+1)]["joueurs"]) < 2:
-                free_party_list.append(int(game_id+1))
-        for game_id in range(len(data)):
             if len(data[str(game_id+1)]["joueurs"]) == 0:
-                empty_party_list.append(int(game_id+1))
-        """        
+                empty_party_list.append(game_id+1)
+                free_party_list.append(game_id+1)
+            elif len(data[str(game_id+1)]["joueurs"]) == 1:
+                free_party_list.append(game_id+1)
+
+           
         client.send(b"/lobbylist")
         data = client.recv(4096).decode("utf-8")
-        print(data)
-        print(type(data))
-        for player in data.items():
-            print(player)
-        """
+        data = json.loads(data)
+        players_alone_list = ["" for loop in range(len(data))]
+        for ip in data:
+            try:
+                players_alone_list[data[ip]["partie_id"]] = data[ip]["pseudo"]
+            except:
+                pass
         party_infos = {
                         "empty" : empty_party_list,
                         "free" : free_party_list,
                         "number" : len(data),
-                        "players_list" : "player"
+                        "players_list" : players_alone_list
                       }
         
         return party_infos
@@ -284,15 +292,7 @@ class App:
         coords = list(coords)
         text = text.lower()
         letters_coords = {
-            "exemple" : (
-                'file',
-                'image',
-                'width',
-                'height',
-                'from-x',
-                'from-y',
-                'width2'
-            ),
+            "exemple" : ('file','image','width','height','from-x','from-y'),
             "a" : ("letter1", 0, 85, 99, 0, 0),
             "b" : ("letter1", 0, 72, 100, 85, 0),
             "c" : ("letter1", 0, 77, 100, 157, 0),
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("192.168.1.16", 62222))
+        client.connect(("172.16.4.7", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
