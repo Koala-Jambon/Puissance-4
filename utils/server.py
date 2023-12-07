@@ -7,6 +7,8 @@ import json
 import random
 from colorama import Fore, Style
 
+import utils
+
 # Initialisation du serveur sur le port `62222`
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -127,14 +129,22 @@ def handle_client(client_jouer: socket.socket, client_address):
                 client_jouer.send(json.dumps({"message": "error", "details": "Veuillez renseigner un idientifiant valide"}).encode("utf-8"))
 
         # Et là c'est quand le client est prêt à jouer et qu'il attend
-        elif data[0] == "/wait":
+        elif data[0] == "/waitpeople":
             p_id = lobby[client_address]["partie_id"]
-            while len(party[p_id]["joueurs"]) != 2:
-                # On attend qu'un joueur rejoigne la partie
-                print("---ON ATTEND---")
-                print(party)
-                time.sleep(1)
-            jouer(p_id, client_jouer, client_address)
+            if not p_id:
+                client_jouer.send(json.dumps({"message": "error", "details": "Veuillez d'abord rejoindre une partie"}).encode("utf-8"))
+            else:
+                while len(party[p_id]["joueurs"]) != 2:
+                    utils.send_json(client_jouer, {"message": "/waitpeople"})
+                    # Il faut régler le fait qu'un client peut quitter ici
+                    data = utils.recv_simple(client_jouer)
+                    if "/waitpeople" in data:
+                        print("IL ATTEND")
+                    # On attend qu'un joueur rejoigne la partie
+                    print("---ON ATTEND---")
+                    print(party)
+                    time.sleep(1)
+                jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
 
 
@@ -143,17 +153,18 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    to_send = {"joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
+    to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
-        data = client_jouer.recv(4096).decode("utf-8")
-        if data == "":
+        data = utils.recv_json(client_jouer)
+        print(f"Réception de |{data}| par {client_address}")
+        if data is None:
             client_jouer.close()
             continue
         print(f"Data from {client_address}\n {data}")
-        if "/wait" in data:
-            data = data.split(" ", 1)
-            board = json.loads(data[1])["board"]
+
+        if data["message"] == "/waitgame":
+            board = data["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
                 time.sleep(1)
@@ -164,15 +175,14 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
 
-        if "/play" in data:
+        if data["message"] == "/play":
             if client_address != game.player_turn():
                 print(f"left {client_address} // right {game.player_turn()}")
                 client_jouer.send("Error : Pas ton tour connard".encode("utf-8"))
                 # Une fois qu'on lui a répondu, on attend un nouveau message de sa part
                 continue
             try:
-                data = data.split()
-                colonne = int(data[1])
+                colonne = int(data["coup"])
                 if colonne < 0:
                     colonne = 0
                 if colonne > 6:
@@ -186,9 +196,9 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                         fin_partie(game,client_jouer)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
-                        client_jouer.send(json.dumps({"message": "/wait", "board": nboard}).encode("utf-8"))
+                        utils.send_json(client_jouer, {"message": "/waitgame", "board": nboard})
             except ValueError or KeyError:
-                client_jouer.send(json.dumps({"message": "Veuillez entrer un bon numéro", "board": game.board}).encode("utf-8"))
+                client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "Veuillez entrer un bon numéro"}).encode("utf-8"))
 
 
 def fin_partie(game, client_in_end):
