@@ -63,8 +63,10 @@ class App:
         else:
             # On attend le coup de l'autre joueur
             self.client.send(json.dumps({"message": "/waitgame", 'board': self.game.board}).encode("utf-8"))
-            data = self.client.recv(4096).decode("utf-8")
-            data = json.loads(data)
+            data = recv_json(client=self.client)
+            while data["message"] == "/waitgame":
+                send_json(client=self.client, data_dict={"message": "/waitgame"})
+                data = recv_json(self.client)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
             # On update le board
             self.game.board = data["board"]
@@ -103,7 +105,7 @@ def run():
     question(client)
     print("AVANT d'attendre")
     data = wait_people(client)
-
+    print(data)
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
         data["board"],  # Current state of the board(normally it's blank)
