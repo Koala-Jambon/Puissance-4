@@ -172,8 +172,9 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 # On peut aussi lui envoyer les positions de l'autre personne qui joue
                 while party[partie_id]["jeu"]["position"] == position:
                     time.sleep(0.1)
+                position = party[partie_id]["jeu"]["position"]
                 print("LA POSITION A CHANGÉ:  " + str(position))
-                party[partie_id]["jeu"]["position"] = position
+
                 utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
 
             print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
