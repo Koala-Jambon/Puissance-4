@@ -109,6 +109,7 @@ class Game:
             return True
         return False
 
+    # Returns the reason of the victory
     def victory_reason(self):
         return self.victory_coords
                  
