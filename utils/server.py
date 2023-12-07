@@ -175,7 +175,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 party[partie_id]["jeu"]["position"] = position
                 utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
 
-
+            print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
 
             if game.check_endgame():
                 print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
@@ -192,6 +192,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 if colonne > 6:
                     colonne = 6
                 party[partie_id]["jeu"]["position"] = colonne
+
             except ValueError or KeyError:
                 client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"}).encode("utf-8"))
 
