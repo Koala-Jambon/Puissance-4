@@ -217,7 +217,7 @@ class App:
                 data = json.loads(data)
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
                 if "/waitgame" in data["message"]:
-                    self.choice_position = data["position"]
+                    self.choice_position = data["position"]+1
                 else:
                     # Updates the board
                     self.game.board = data["board"]
