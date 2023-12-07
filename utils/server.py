@@ -120,9 +120,9 @@ def handle_client(client_jouer: socket.socket, client_address):
                     tour.append(lobby[tour[0]]["pseudo"])
 
                     """
-                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "ddd", 1]}}
+                    {"joueurs": [["127.0.0.1", 45512], ["127.0.0.1", 45522]], "jeu": {"board": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]], "tour": [("127.0.0.1", 45512), "position": 0]}}
                     """
-                    party[data[1]]["jeu"] = {"board": api.board(), "game": api.Game(party[data[1]]["joueurs"], api.board(), tour[0])}
+                    party[data[1]]["jeu"] = {"board": api.board(), "game": api.Game(party[data[1]]["joueurs"], api.board(), tour[0]), "position": 0}
                 client_jouer.send(json.dumps({"message": "ok"}).encode("utf-8"))
 
             except KeyError:
@@ -167,13 +167,29 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
             board = data["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
+                # On lui renvoie un message de confirmation d'attente toute les secondes
+                # On peut aussi lui envoyer les positions de l'autre personne qui joue
                 time.sleep(1)
+
+
             if game.check_endgame():
                 print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
                 fin_partie(game, client_jouer)
             else:
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
+
+        if data["message"] == "/position":
+            try:
+                colonne = int(data["position"])
+                if colonne < 0:
+                    colonne = 0
+                if colonne > 6:
+                    colonne = 6
+                party[partie_id]["jeu"]["position"] = colonne
+            except ValueError or KeyError:
+                client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"}).encode("utf-8"))
+
 
         if data["message"] == "/play":
             if client_address != game.player_turn():
@@ -199,6 +215,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                         utils.send_json(client_jouer, {"message": "/waitgame", "board": nboard})
             except ValueError or KeyError:
                 client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "Veuillez entrer un bon numéro"}).encode("utf-8"))
+
 
 
 def fin_partie(game, client_in_end):
