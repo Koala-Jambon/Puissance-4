@@ -71,7 +71,7 @@ class App:
 
     # Draws the username chosen by the user
     def draw_get_username(self):
-        self.draw_text(self.nickname, (0/size, 440/size))
+        self.draw_text(self.nickname, ("center", 440/size))
 
     # Waits for another player to connect
     def update_waiting_other_player(self):
@@ -94,7 +94,7 @@ class App:
 
     # Draws a text telling the user to wait for another player
     def draw_waiting_other_player(self):
-        self.draw_text("Waiting...", (0, 0))
+        self.draw_text("Waiting...", ("center", 0))
 
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
