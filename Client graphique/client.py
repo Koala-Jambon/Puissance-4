@@ -75,6 +75,7 @@ class App:
 
     # Waits for another player to connect
     def update_waiting_other_player(self):
+        print("Debug : Je suis passé par le state 4")
         if self.delay_to_draw == 2:
             data = {"message" : "/waitpeople"}
             while data["message"] == "/waitpeople":
@@ -183,12 +184,15 @@ class App:
 
     # Checks if the player has played/received a moove
     def update_in_game(self):
+        print("Je passe par là")
         if self.delay_to_draw == 2:
             if (self.game.player_turn_number == self.player_number):
                 if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                     self.choice_position += 1
+                    send_json(client=client, data_dict={"message": "/position", "position" : self.choice_position-1})
                 elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
                     self.choice_position += -1
+                    send_json(client=client, data_dict={"message": "/position", "position" : self.choice_position-1})
                 elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(
                         self.choice_position - 1) == True:
                     self.game.drop_piece(self.choice_position - 1)
@@ -208,15 +212,19 @@ class App:
             else:
                 # On attend le coup de l'autre joueur
                 send_json(client=client, data_dict={"message": "/waitgame", "board": self.game.board})
+                print("j'ai envoyé le message")
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
-                # Updates the board
-                self.game.board = data["board"]
-                # Checks the game has ended ; If yes then tells the user why
-                self.calculate_endgame(data)
-                # Changes the player who has to play
-                self.game.change_player_turn()
+                if "/waitgame" in data["message"]:
+                    self.choice_position = data["position"]
+                else:
+                    # Updates the board
+                    self.game.board = data["board"]
+                    # Checks the game has ended ; If yes then tells the user why
+                    self.calculate_endgame(data)
+                    # Changes the player who has to play
+                    self.game.change_player_turn()
         else:
             self.delay_to_draw += 1
 
@@ -231,11 +239,7 @@ class App:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 8)
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
-        if self.game.player_turn_number == self.player_number:
-            pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size,
-                       2 * (self.player_number - 1) + 8)
-        else:
-            self.draw_text("Waiting...", (0, 0))
+        pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.player_number - 1) + 8)
 
     # Returns a list of all the parties with less than 2 players in them
     def party_infos(self):
