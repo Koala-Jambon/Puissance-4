@@ -172,7 +172,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 # On peut aussi lui envoyer les positions de l'autre personne qui joue
                 while party[partie_id]["jeu"]["position"] == position:
                     time.sleep(0.1)
-                print("LA POSITION A CHANGÉ")
+                print("LA POSITION A CHANGÉ:  " + str(position))
                 party[partie_id]["jeu"]["position"] = position
                 utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
 
@@ -191,7 +191,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 if colonne < 0:
                     colonne = 0
                 if colonne > 6:
-                    colonne = 6
+                      colonne = 6
                 party[partie_id]["jeu"]["position"] = colonne
 
             except ValueError or KeyError:
