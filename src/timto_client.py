@@ -62,12 +62,11 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
-            data = {"message": "/waitgame", "position": 0}
-            while data["message"] == "/waitgame":
-
             self.client.send(json.dumps({"message": "/waitgame", 'board': self.game.board}).encode("utf-8"))
-            data = self.client.recv(4096).decode("utf-8")
-            data = json.loads(data)
+            data = recv_json(client=self.client)
+            while data["message"] == "/waitgame":
+                send_json(client=self.client, data_dict={"message": "/waitgame"})
+                data = recv_json(self.client)
             print(f"Debug : |On attend le coup de l'autre| {data} ")
             # On update le board
             self.game.board = data["board"]
