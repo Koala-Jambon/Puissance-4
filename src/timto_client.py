@@ -62,6 +62,9 @@ class App:
                 self.choice_position = 0
         else:
             # On attend le coup de l'autre joueur
+            data = {"message": "/waitgame", "position": 0}
+            while data["message"] == "/waitgame":
+
             self.client.send(json.dumps({"message": "/waitgame", 'board': self.game.board}).encode("utf-8"))
             data = self.client.recv(4096).decode("utf-8")
             data = json.loads(data)
@@ -96,14 +99,14 @@ class EcranFin:
 def run():
     os.system('clear')
     welcome()
-    client = server_connect("172.16.50.253", 62222)
+    client = server_connect("127.0.0.1", 62222)
     lobby_connection(client)
     get_player(client)
     get_party(client)
     question(client)
     print("AVANT d'attendre")
     data = wait_people(client)
-
+    print(data)
     App(data["joueurs"],  # Ip List
         data["you"],  # Ip of the computer which is running this code
         data["board"],  # Current state of the board(normally it's blank)

@@ -153,7 +153,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     game = party[partie_id]["jeu"]["game"]
     print("<---Board actuel--->")
     print(game.board)
-    to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"]} | {"you": client_address} | {"tour": game.player_turn()}
+    to_send = {"message": "ok", "joueurs": party[partie_id]["joueurs"]} | {"board": party[partie_id]["jeu"]["board"], "position": party[partie_id]["jeu"]["position"]} | {"you": client_address} | {"tour": game.player_turn()}
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = utils.recv_json(client_jouer)
@@ -164,12 +164,17 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
         print(f"Data from {client_address}\n {data}")
 
         if data["message"] == "/waitgame":
+            position = 0
             board = data["board"]
             # print(f"WAIT : {game.board} \n {board}")
             while game.board == board:
                 # On lui renvoie un message de confirmation d'attente toute les secondes
                 # On peut aussi lui envoyer les positions de l'autre personne qui joue
-                time.sleep(1)
+                while party[partie_id]["jeu"]["position"] == position:
+                    time.sleep(0.1)
+                party[partie_id]["jeu"]["position"] = position
+                utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
+
 
 
             if game.check_endgame():
