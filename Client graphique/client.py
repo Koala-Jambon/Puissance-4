@@ -22,8 +22,8 @@ class App:
         self.party_choice_number = 0 # Number of the party you are trying to join 
         self.nickname = "" # Nickname chosen by the user ; By default empty
         self.button = 1 # The number of the button the user is hovering over
-        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player"]
-        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player"]
+        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username", "update_waiting_other_player", "update_end_game"]
+        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username", "draw_waiting_other_player", "draw_end_game"]
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Koala-4")
         pyxel.run(self.update, self.draw)
 
@@ -290,11 +290,29 @@ class App:
             for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                    print(self.game.victory_reason)
                     for draw_coords in self.game.victory_reason:
+                        print(draw_coords)
                         pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
                     self.delay_to_draw = 0
+                    self.State = 5
 
-    
+    def update_end_game():
+        pass
+
+    def draw_end_game():
+        for draw_x, draw_y in tool.product(range(7), range(6)):
+            pyxel.rect((150 * draw_x + 435) / size, (930 - 150 * draw_y) / size, 150 / size, 150 / size, 1)
+            if self.game.board[draw_y][draw_x] == 0:
+                pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 0)
+            if self.game.board[draw_y][draw_x] == 1:
+                pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 8)
+            if self.game.board[draw_y][draw_x] == 2:
+                pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
+        for draw_coords in self.game.victory_reason:
+            print(draw_coords)
+            pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
+
     def draw_text(self, text : str, coords : tuple):
         coords = list(coords)
         text = text.lower()
