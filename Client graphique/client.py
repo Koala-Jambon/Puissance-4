@@ -104,12 +104,11 @@ class App:
         elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["number"]-1:
             self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number+1 in self.party_infos()["free"]:
-            print("enter")
+            print("Debug : La partie est free & tu a appuyé sur entré")
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
         elif pyxel.btnp(pyxel.KEY_RETURN):
-            print("Debug : vatefaire", self.party_choice_number, self.party_infos()["free"])
-        print(self.party_infos()["number"])
+            print("Debug : La partie est full :", self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -184,7 +183,6 @@ class App:
 
     # Checks if the player has played/received a moove
     def update_in_game(self):
-        print("Je passe par là")
         if self.delay_to_draw == 2:
             if (self.game.player_turn_number == self.player_number):
                 if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
@@ -216,7 +214,7 @@ class App:
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
-                if "/waitgame" in data["message"]:
+                if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
                 else:
                     # Updates the board
@@ -239,7 +237,7 @@ class App:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 8)
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
-        pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.player_number - 1) + 8)
+        pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.game.player_turn_number - 1) + 8)
 
     # Returns a list of all the parties with less than 2 players in them
     def party_infos(self):
