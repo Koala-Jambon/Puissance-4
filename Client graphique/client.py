@@ -38,8 +38,11 @@ class App:
     # Gets the username that the user chooses and sends it to the server
     def update_get_username(self):
         pyxel_key_letters = [pyxel.KEY_A,pyxel.KEY_B,pyxel.KEY_C,pyxel.KEY_D,pyxel.KEY_E,pyxel.KEY_F,pyxel.KEY_G,pyxel.KEY_H,pyxel.KEY_I,pyxel.KEY_J,pyxel.KEY_K,pyxel.KEY_L,pyxel.KEY_M,
-                   pyxel.KEY_N,            print(draw_coords)
- = self.nickname + alphabet[letter].upper()
+                   pyxel.KEY_N,pyxel.KEY_O,pyxel.KEY_P,pyxel.KEY_Q,pyxel.KEY_R,pyxel.KEY_S,pyxel.KEY_T,pyxel.KEY_U,pyxel.KEY_V,pyxel.KEY_W,pyxel.KEY_X,pyxel.KEY_Y,pyxel.KEY_Z]
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        for letter in range(26):
+            if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT) and len(self.nickname) < 12:
+                self.nickname = self.nickname + alphabet[letter].upper()
             elif pyxel.btnp(pyxel_key_letters[letter]) and len(self.nickname) < 12:
                 self.nickname = self.nickname + alphabet[letter]
 
@@ -298,7 +301,7 @@ class App:
         else:
             self.delay_to_draw = 0
             self.delay = 0
-            self.state = 0 # State of the game ; Determines what the game has to draw/check
+            self.state = 3 # State of the game ; Determines what the game has to draw/check
             self.party_choice_number = 0 # Number of the party you are trying to join 
             self.button = 1 # The number of the button the user is hovering over
 
