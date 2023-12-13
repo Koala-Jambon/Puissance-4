@@ -124,8 +124,8 @@ class App:
             if button_constant in self.party_infos()["empty"]:
                 self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant in self.party_infos()["free"]:
-                try:
-                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                try:    
+                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant-1]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
                 except:
                     self.draw_text(f"{button_constant}-Error", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant <= self.party_infos()["number"]:
@@ -263,7 +263,7 @@ class App:
         players_alone_list = ["" for loop in range(len(data))]
         for ip in data:
             try:
-                players_alone_list[data[ip]["partie_id"]] = data[ip]["pseudo"]
+                players_alone_list[int(data[ip]["partie_id"])-1] = str(data[ip]["pseudo"])
             except:
                 pass
         party_infos = {
@@ -365,7 +365,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.4.7", 62222))
+        client.connect(("172.16.122.1", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
