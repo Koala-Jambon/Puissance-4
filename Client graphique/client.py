@@ -337,15 +337,15 @@ class App:
             "-" : ("letter2", 2, 45, 63, 148, 102),
             "." : ("letter2", 2, 17, 84, 193, 102)
         }
-        if coords[0] = "center":
-            save_coords = [0,0]
+        if coords[0] == "center":
+            save_coords = 0
             for letter in text:
                 try:
-                    save_coords[0] += letters_coords[letter][2] + 8
+                    save_coords += letters_coords[letter][2] + 8
                 except KeyError:
                     if letter == " ":
                         coords[0] += 32
-            coords[0] = ((1920-save_coords[0])/2)/size
+            coords[0] = (1920/size-save_coords)/2
         for letter in text:
             try:
                 pyxel.load(f"{letters_coords[letter][0]}.pyxres")
@@ -365,7 +365,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.50.253", 62222))
+        client.connect(("172.16.4.7", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
