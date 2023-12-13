@@ -176,6 +176,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                     data = utils.recv_json(client_jouer)
                     print(data)
 
+            party["jeu"]["position"] = 0
             print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
 
             if game.check_endgame():
@@ -195,8 +196,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 party[partie_id]["jeu"]["position"] = colonne
 
             except ValueError or KeyError:
-                client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"}).encode("utf-8"))
-
+                utils.send_json(client_jouer, {"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"})
 
         if data["message"] == "/play":
             if client_address != game.player_turn():
