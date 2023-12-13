@@ -125,6 +125,7 @@ def exit_game():
 
 def send_json(client, data_dict):
     try:
+        print(f"on envoie {data_dict}")
         client.send(json.dumps(data_dict).encode("utf-8"))
         return True
     except OSError:

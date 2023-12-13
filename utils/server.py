@@ -156,7 +156,6 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = utils.recv_json(client_jouer)
-        print(f"Réception de |{data}| par {client_address}")
         if data is None:
             client_jouer.close()
             continue
@@ -173,7 +172,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                     time.sleep(0.1)
                 position = party[partie_id]["jeu"]["position"]
                 print("LA POSITION A CHANGÉ:  " + str(position))
-
+                print("Et maintenant on envoie un /waitgame")
                 utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
 
             print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
