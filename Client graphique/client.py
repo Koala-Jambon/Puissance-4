@@ -1,3 +1,4 @@
+#Version : La meilleure de toute (qsdfqsfdfsqfmathsmathsmathsokdqsjk:mfjklmqsjdklfj)
 # Modules to import
 import pyxel
 import os
