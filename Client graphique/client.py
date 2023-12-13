@@ -389,7 +389,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.122.1", 62222))
+        client.connect(("127.0.0.1", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
