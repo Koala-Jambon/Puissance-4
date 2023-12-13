@@ -291,11 +291,8 @@ class App:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
                     print(self.game.victory_reason)
-                    for draw_coords in self.game.victory_reason:
-                        print(draw_coords)
-                        pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
                     self.delay_to_draw = 0
-                    self.State = 5
+                    self.state = 5
 
     def update_end_game():
         pass
