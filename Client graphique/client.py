@@ -11,7 +11,7 @@ import rich
 from utils import api
 from utils.utils import *
 
-#Size of the screen, can be wathever you want ; 1.5 is recommended
+# Size of the screen, can be wathever you want ; 1.5 is recommended
 size = 1.5
 
 class App:
@@ -289,7 +289,9 @@ class App:
             for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                 if getattr(self.game, func)():
                     print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
-            exit()
+                    for draw_coords in self.game.victory_reason:
+                        pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
+                    self.delay_to_draw = 0
 
     
     def draw_text(self, text : str, coords : tuple):
