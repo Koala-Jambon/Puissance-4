@@ -301,7 +301,7 @@ class App:
         else:
             self.delay_to_draw = 0
             self.delay = 0
-            self.state = 3 # State of the game ; Determines what the game has to draw/check
+            self.state = 0 # State of the game ; Determines what the game has to draw/check
             self.party_choice_number = 0 # Number of the party you are trying to join 
             self.button = 1 # The number of the button the user is hovering over
 
