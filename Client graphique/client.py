@@ -294,10 +294,10 @@ class App:
                     self.delay_to_draw = 0
                     self.state = 5
 
-    def update_end_game():
+    def update_end_game(self):
         pass
 
-    def draw_end_game():
+    def draw_end_game(self):
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435) / size, (930 - 150 * draw_y) / size, 150 / size, 150 / size, 1)
             if self.game.board[draw_y][draw_x] == 0:
@@ -307,7 +307,6 @@ class App:
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
         for draw_coords in self.game.victory_reason:
-            print(draw_coords)
             pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
 
     def draw_text(self, text : str, coords : tuple):
