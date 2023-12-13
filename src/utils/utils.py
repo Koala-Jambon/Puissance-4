@@ -112,7 +112,7 @@ def wait_people(client):
     data = {"message": "/waitpeople"}
     with yaspin(Spinners.arc, text="Attente d'un autre joueur") as sp:
         while data["message"] == "/waitpeople":
-            client.send("/waitpeople".encode("utf-8"))
+            send_json("/waitpeople".encode("utf-8"))
             data = recv_json(client)
     return data
 

@@ -138,10 +138,9 @@ def handle_client(client_jouer: socket.socket, client_address):
                     utils.send_json(client_jouer, {"message": "/waitpeople"})
                     # Il faut régler le fait qu'un client peut quitter ici
                     data = utils.recv_simple(client_jouer)
-                    if "/waitpeople" in data:
-                        print("IL ATTEND")
+                    if data != "/waitpeople":
+                        raise OSError
                     # On attend qu'un joueur rejoigne la partie
-                    print("---ON ATTEND---")
                     print(party)
                     time.sleep(1)
                 jouer(p_id, client_jouer, client_address)

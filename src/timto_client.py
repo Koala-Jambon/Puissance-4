@@ -98,7 +98,7 @@ class EcranFin:
 def run():
     os.system('clear')
     welcome()
-    client = server_connect("172.16.50.253", 62222)
+    client = server_connect("127.0.0.1", 62222)
     lobby_connection(client)
     get_player(client)
     get_party(client)
