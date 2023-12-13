@@ -176,7 +176,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                     data = utils.recv_json(client_jouer)
                     print(data)
 
-            party["jeu"]["position"] = 0
+            party[partie_id]["jeu"]["position"] = 0
             print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
 
             if game.check_endgame():
