@@ -54,6 +54,7 @@ class Game:
                     n += 1
                 else:
                     winner = self.board[check_y][check_x]
+                    self.victory_reason = ((check_x, check_y), (check_x+1, check_y), (check_x+2, check_y), (check_x+3, check_y))
                     return int(winner)
         return False
     
@@ -67,6 +68,7 @@ class Game:
                     n += 1
                 else:
                     winner = self.board[check_y][check_x]
+                    self.victory_reason = ((check_x, check_y), (check_x, check_y+1), (check_x, check_y+2), (check_x, check_y+3))
                     return int(winner)
         return False
     
@@ -80,6 +82,7 @@ class Game:
                     n += 1
                 else:
                     winner = self.board[check_y][check_x]
+                    self.victory_reason = ((check_x, check_y), (check_x+1, check_y+1), (check_x+2, check_y+2), (check_x+3, check_y+3))
                     return int(winner)
         return False
     
@@ -93,6 +96,7 @@ class Game:
                     n += 1
                 else:
                     winner = self.board[check_y][check_x]
+                    self.victory_reason = ((check_x, check_y), (check_x-1, check_y+1), (check_x-2, check_y+2), (check_x-3, check_y+3))
                     return int(winner)
         return False
     
@@ -105,7 +109,10 @@ class Game:
             return True
         return False
 
-                
+    # Returns the reason of the victory
+    def victory_reason(self):
+        return self.victory_coords
+                 
     #Return True si le plateau est plein ; False si le plateau a toujours des cases libres
     def check_tie(self):
         for column_check_number in range(7):
