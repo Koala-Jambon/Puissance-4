@@ -72,6 +72,7 @@ class App:
 
     # Draws the username chosen by the user
     def draw_get_username(self):
+        self.draw_text("Enter nickname:", ("center", 10))
         self.draw_text(self.nickname, ("center", 440/size))
 
     # Waits for another player to connect
@@ -345,7 +346,7 @@ class App:
                     save_coords += letters_coords[letter][2] + 8
                 except KeyError:
                     if letter == " ":
-                        coords[0] += 32
+                        save_coords += 32
             coords[0] = (1920/size-save_coords)/2
         for letter in text:
             try:
