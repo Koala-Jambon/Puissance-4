@@ -168,6 +168,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
             while game.board == board:
                 # On lui renvoie un message de confirmation d'attente toute les secondes
                 # On peut aussi lui envoyer les positions de l'autre personne qui joue
+
                 if party[partie_id]["jeu"]["position"] != position:
                     position = party[partie_id]["jeu"]["position"]
                     print("LA POSITION A CHANGÉ:  " + str(position))
@@ -192,6 +193,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 if colonne < 0:
                     colonne = 0
                 if colonne > 6:
+
                       colonne = 6
                 party[partie_id]["jeu"]["position"] = colonne
 
@@ -244,3 +246,4 @@ while not error:
 
     print("Le thread a été lancé")
 
+   
