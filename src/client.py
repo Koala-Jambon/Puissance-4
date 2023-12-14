@@ -352,7 +352,7 @@ class App:
                     coords[0] += 32      
             
 # Connects to the lobby and then starts the game
-if __name__ == "__main__":
+def run():
     if os.name == "posix":
         os.system("clear")
     else:
