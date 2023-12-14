@@ -104,12 +104,11 @@ class App:
         elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["number"]-1:
             self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number+1 in self.party_infos()["free"]:
-            print("enter")
+            print("Debug : La partie est free & tu a appuyé sur entré")
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
         elif pyxel.btnp(pyxel.KEY_RETURN):
-            print("Debug : vatefaire", self.party_choice_number, self.party_infos()["free"])
-        print(self.party_infos()["number"])
+            print("Debug : La partie est full :", self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -124,8 +123,8 @@ class App:
             if button_constant in self.party_infos()["empty"]:
                 self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant in self.party_infos()["free"]:
-                try:
-                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                try:    
+                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant-1]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
                 except:
                     self.draw_text(f"{button_constant}-Error", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
             elif button_constant <= self.party_infos()["number"]:
@@ -184,7 +183,6 @@ class App:
 
     # Checks if the player has played/received a moove
     def update_in_game(self):
-        print("Je passe par là")
         if self.delay_to_draw == 2:
             if (self.game.player_turn_number == self.player_number):
                 if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
@@ -216,7 +214,7 @@ class App:
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
-                if "/waitgame" in data["message"]:
+                if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
                 else:
                     # Updates the board
@@ -239,7 +237,7 @@ class App:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 8)
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
-        pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.player_number - 1) + 8)
+        pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.game.player_turn_number - 1) + 8)
 
     # Returns a list of all the parties with less than 2 players in them
     def party_infos(self):
@@ -263,7 +261,7 @@ class App:
         players_alone_list = ["" for loop in range(len(data))]
         for ip in data:
             try:
-                players_alone_list[data[ip]["partie_id"]] = data[ip]["pseudo"]
+                players_alone_list[int(data[ip]["partie_id"])-1] = str(data[ip]["pseudo"])
             except:
                 pass
         party_infos = {
@@ -337,15 +335,15 @@ class App:
             "-" : ("letter2", 2, 45, 63, 148, 102),
             "." : ("letter2", 2, 17, 84, 193, 102)
         }
-        if coords[0] = "center":
-            save_coords = [0,0]
+        if coords[0] == "center":
+            save_coords = 0
             for letter in text:
                 try:
-                    save_coords[0] += letters_coords[letter][2] + 8
+                    save_coords += letters_coords[letter][2] + 8
                 except KeyError:
                     if letter == " ":
                         coords[0] += 32
-            coords[0] = ((1920-save_coords[0])/2)/size
+            coords[0] = (1920/size-save_coords)/2
         for letter in text:
             try:
                 pyxel.load(f"{letters_coords[letter][0]}.pyxres")
@@ -365,7 +363,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.50.253", 62222))
+        client.connect(("172.16.122.1", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()

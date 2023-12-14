@@ -138,10 +138,9 @@ def handle_client(client_jouer: socket.socket, client_address):
                     utils.send_json(client_jouer, {"message": "/waitpeople"})
                     # Il faut régler le fait qu'un client peut quitter ici
                     data = utils.recv_simple(client_jouer)
-                    if "/waitpeople" in data:
-                        print("IL ATTEND")
+                    if data != "/waitpeople":
+                        raise OSError
                     # On attend qu'un joueur rejoigne la partie
-                    print("---ON ATTEND---")
                     print(party)
                     time.sleep(1)
                 jouer(p_id, client_jouer, client_address)
@@ -157,7 +156,6 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
     client_jouer.send(json.dumps(to_send).encode("utf-8"))
     while True:
         data = utils.recv_json(client_jouer)
-        print(f"Réception de |{data}| par {client_address}")
         if data is None:
             client_jouer.close()
             continue
@@ -170,12 +168,17 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
             while game.board == board:
                 # On lui renvoie un message de confirmation d'attente toute les secondes
                 # On peut aussi lui envoyer les positions de l'autre personne qui joue
-                while party[partie_id]["jeu"]["position"] == position:
-                    time.sleep(0.1)
-                party[partie_id]["jeu"]["position"] = position
-                utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
 
+                if party[partie_id]["jeu"]["position"] != position:
+                    position = party[partie_id]["jeu"]["position"]
+                    print("LA POSITION A CHANGÉ:  " + str(position))
+                    utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
+                    # Et on attend sa réponse
+                    data = utils.recv_json(client_jouer)
+                    print(data)
 
+            party[partie_id]["jeu"]["position"] = 0
+            print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
 
             if game.check_endgame():
                 print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
@@ -190,11 +193,12 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 if colonne < 0:
                     colonne = 0
                 if colonne > 6:
-                    colonne = 6
-                party[partie_id]["jeu"]["position"] = colonne
-            except ValueError or KeyError:
-                client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"}).encode("utf-8"))
 
+                      colonne = 6
+                party[partie_id]["jeu"]["position"] = colonne
+
+            except ValueError or KeyError:
+                utils.send_json(client_jouer, {"message": "error", "board": game.board, "details": "/position n'aime pas votre coup"})
 
         if data["message"] == "/play":
             if client_address != game.player_turn():
@@ -242,3 +246,4 @@ while not error:
 
     print("Le thread a été lancé")
 
+   
