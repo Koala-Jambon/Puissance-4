@@ -20,7 +20,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyxel",
+    "pyxel=1.9.18",
     "colorama",
     "rich",
     "yaspin",
@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.scripts]
-koala = "timto_client:run"
+koala = "client:run"
 
 [project.urls]
 Homepage = "https://github.com/Koala-Jambon/Puissance-4"
