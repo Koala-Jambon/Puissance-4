@@ -218,7 +218,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                     game.board = nboard
                     if game.check_endgame():
                         print(f"La partie est fini pour {client_address}")
-                        fin_partie(game,client_jouer)
+                        fin_partie(game,client_jouer, client_address)
                     else:
                         print(f"<---Nouveau plateau--->\n{nboard}")
                         utils.send_json(client_jouer, {"message": "/waitgame", "board": nboard})
@@ -226,10 +226,13 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                 client_jouer.send(json.dumps({"message": "error", "board": game.board, "details": "Veuillez entrer un bon numéro"}).encode("utf-8"))
 
 
-
-def fin_partie(game, client_in_end):
+def fin_partie(game, client_in_end, client_address):
     client_in_end.send(json.dumps({"message": "/endgame", "board": game.board}).encode("utf-8"))
-    client_in_end.close()
+    party[lobby[client_address]["partie_id"]]["joueurs"].remove(client_address)
+    print("On a sortie un joueur de la partie")
+    lobby[client_address]["status"] = "disponible"
+    lobby[client_address]["partie_id"] = None
+    handle_client(client_in_end, client_address)
 
 
 error = False
