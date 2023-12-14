@@ -12,7 +12,8 @@ size = 1.5
 
 class App:
 
-    def __init__(self): 
+    def __init__(self, client):
+        self.client = client
         self.delay_to_draw = 0
         self.delay = 0
         self.state = 3 # State of the game ; Determines what the game has to draw/check
@@ -45,16 +46,16 @@ class App:
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
             self.nickname = self.nickname[:-1]
         if pyxel.btnp(pyxel.KEY_RETURN):
-            client.send(f"/lobby {self.nickname}".encode("utf-8"))
-            data = client.recv(4096).decode("utf-8")
+            self.client.send(f"/lobby {self.nickname}".encode("utf-8"))
+            data = self.client.recv(4096).decode("utf-8")
 
 
             # We get the list of parties and players
-            client.send(b"/lobbylist")
-            data = client.recv(4096).decode("utf-8")
+            self.client.send(b"/lobbylist")
+            data = self.client.recv(4096).decode("utf-8")
 
-            client.send(b"/partylist")
-            data = client.recv(4096).decode("utf-8")
+            self.client.send(b"/partylist")
+            data = self.client.recv(4096).decode("utf-8")
             self.state = 0
 
     # Draws the username chosen by the user
@@ -67,8 +68,8 @@ class App:
         if self.delay_to_draw == 2:
             data = {"message" : "/waitpeople"}
             while data["message"] == "/waitpeople":
-                client.send(f"/waitpeople".encode("utf-8"))
-                data = recv_json(client)
+                self.client.send(f"/waitpeople".encode("utf-8"))
+                data = recv_json(self.client)
 
             self.game__init__(data["joueurs"],  # Ip List
                               data["you"],  # Ip of the computer which is running this code
@@ -119,8 +120,8 @@ class App:
 
     # Sends to the server what the user wants to do (Create/Join) a party
     def party_interactions(self, action : str):
-        client.send(f"{action}".encode("utf-8"))
-        data = client.recv(4096).decode("utf-8")
+        self.client.send(f"{action}".encode("utf-8"))
+        data = self.client.recv(4096).decode("utf-8")
 
         self.state = 4
         self.delay_to_draw = 0
@@ -168,16 +169,16 @@ class App:
             if (self.game.player_turn_number == self.player_number):
                 if pyxel.btnp(pyxel.KEY_RIGHT) and self.choice_position in [0, 1, 2, 3, 4, 5, 6]:
                     self.choice_position += 1
-                    send_json(client=client, data_dict={"message": "/position", "position" : self.choice_position-1})
+                    send_json(client=self.client, data_dict={"message": "/position", "position" : self.choice_position-1})
                 elif pyxel.btnp(pyxel.KEY_LEFT) and self.choice_position in [2, 3, 4, 5, 6, 7]:
                     self.choice_position += -1
-                    send_json(client=client, data_dict={"message": "/position", "position" : self.choice_position-1})
+                    send_json(client=self.client, data_dict={"message": "/position", "position" : self.choice_position-1})
                 elif pyxel.btnp(pyxel.KEY_DOWN) and self.choice_position != 0 and self.game.check_column(
                         self.choice_position - 1) == True:
                     self.game.drop_piece(self.choice_position - 1)
-                    send_json(client, {"message": "/play", "coup": self.choice_position -1})
+                    send_json(self.client, {"message": "/play", "coup": self.choice_position -1})
                     # Waiting for the answer of the server
-                    data = client.recv(4096).decode("utf-8")
+                    data = self.client.recv(4096).decode("utf-8")
                     data = json.loads(data)
                     # Updates the board
                     self.game.board = data["board"]
@@ -189,8 +190,8 @@ class App:
                     self.choice_position = 0
             else:
                 # On attend le coup de l'autre joueur
-                send_json(client=client, data_dict={"message": "/waitgame", "board": self.game.board})
-                data = client.recv(4096).decode("utf-8")
+                send_json(client=self.client, data_dict={"message": "/waitgame", "board": self.game.board})
+                data = self.client.recv(4096).decode("utf-8")
                 data = json.loads(data)
                 if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
@@ -219,8 +220,8 @@ class App:
 
     # Returns a list of all the parties with less than 2 players in them
     def party_infos(self):
-        client.send(b"/partylist")
-        data = client.recv(4096).decode("utf-8")
+        self.client.send(b"/partylist")
+        data = self.client.recv(4096).decode("utf-8")
         data = json.loads(data)
         free_party_list = []
         empty_party_list = []
@@ -232,8 +233,8 @@ class App:
                 free_party_list.append(game_id+1)
 
         party_number = len(data)
-        client.send(b"/lobbylist")
-        data = client.recv(4096).decode("utf-8")
+        self.client.send(b"/lobbylist")
+        data = self.client.recv(4096).decode("utf-8")
         data = json.loads(data)
         players_alone_list = ["" for loop in range(len(data))]
         for ip in data:
@@ -368,4 +369,4 @@ def run():
     
     #print("Debug : Connexion au lobby...")
 
-    App()
+    App(client)
