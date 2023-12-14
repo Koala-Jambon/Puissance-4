@@ -219,6 +219,7 @@ class App:
                 print(f"Debug : |On attend le coup de l'autre| {data} ")
                 if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
+                    pyxel.circ((150 * (self.choice_position - 1) + 510) / size, 75 / size, 70 / size, 2 * (self.game.player_turn_number - 1) + 8)
                 else:
                     self.choice_position = 0
                     # Updates the board
