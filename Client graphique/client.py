@@ -102,16 +102,20 @@ class App:
     # Gets the party the user wants to join and then calls self.party_interactions
     def update_choose_party(self):
         self.delay_to_draw = 0
-        if pyxel.btnp(pyxel.KEY_UP) and self.party_choice_number != 0:
+        if pyxel.btnp(pyxel.KEY_UP) and self.party_choice_number != -1:
             self.party_choice_number += -1
-        elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["number"]-1:
+        elif pyxel.btnp(pyxel.KEY_DOWN) and (self.party_choice_number != self.party_infos()["number"]-1 or self.party_choice_number == -1):
             self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number+1 in self.party_infos()["free"]:
             print("Debug : La partie est free & tu a appuyé sur entré")
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
-        elif pyxel.btnp(pyxel.KEY_RETURN):
+        elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number != -1:
             print("Debug : La partie est full :", self.party_choice_number)
+        elif pyxel.btnp(pyxel.KEY_RETURN):
+            self.state = 0
+            self.party_choice_number = 0
+        print(self.party_choice_number)
     
     # Draws the menu of selection of a party
     def draw_choose_party(self):
@@ -121,21 +125,36 @@ class App:
                           "w" : (int(920/size), int(920/size), int(920/size)),
                           "h" : (int(250/size), int(250/size), int(250/size))
                          }
-        for draw_button in range(len(buttons_coords["x"])):
-            button_constant = (draw_button+(self.party_choice_number//3)*3)+1
-            if button_constant in self.party_infos()["empty"]:
-                self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
-            elif button_constant in self.party_infos()["free"]:
-                try:    
-                    self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant-1]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
-                except:
-                    self.draw_text(f"{button_constant}-Error", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
-            elif button_constant <= self.party_infos()["number"]:
-                self.draw_text(f"{button_constant}-Full", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
-            if draw_button == self.party_choice_number%3:
-                for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
-                    if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
-                        pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 5)
+        if self.party_choice_number != -1:
+            for draw_button in range(len(buttons_coords["x"])):
+                button_constant = (draw_button+(self.party_choice_number//3)*3)+1
+                if button_constant in self.party_infos()["empty"]:
+                    self.draw_text(f"{button_constant}-Empty", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                elif button_constant in self.party_infos()["free"]:
+                    try:    
+                        self.draw_text(f"{button_constant}-{self.party_infos()['players_list'][button_constant-1]}", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                    except:
+                        self.draw_text(f"{button_constant}-Error", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                elif button_constant <= self.party_infos()["number"]:
+                    self.draw_text(f"{button_constant}-Full", (int(510/size), int(buttons_coords["y"][draw_button]+50/size)))
+                if draw_button == self.party_choice_number%3:
+                    for draw_w, draw_h in tool.product(range(buttons_coords["w"][draw_button]), range(buttons_coords["h"][draw_button])):
+                        if pyxel.pget(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h) == 0:
+                            pyxel.pset(buttons_coords["x"][draw_button]+draw_w, buttons_coords["y"][draw_button]+draw_h, 5)
+            pyxel.rect(20/size, 20/size, int(100/size), int(100/size), 2)
+        else:
+            for draw_button in [1, 2, 3]:
+                if draw_button in self.party_infos()["empty"]:
+                    self.draw_text(f"{draw_button}-Empty", (int(510/size), int(buttons_coords["y"][draw_button-1]+50/size)))
+                elif draw_button in self.party_infos()["free"]:
+                    try:    
+                        self.draw_text(f"{draw_button}-{self.party_infos()['players_list'][draw_button-1]}", (int(510/size), int(buttons_coords["y"][draw_button-1]+50/size)))
+                    except:
+                        self.draw_text(f"{draw_button}-Error", (int(510/size), int(buttons_coords["y"][draw_button-1]+50/size)))
+                elif draw_button <= self.party_infos()["number"]:
+                    self.draw_text(f"{draw_button}-Full", (int(510/size), int(buttons_coords["y"][draw_button-1]+50/size)))
+            pyxel.rect(20/size, 20/size, int(100/size), int(100/size), 5)
+        time.sleep(0.2)
 
     # Sends to the server what the user wants to do (Create/Join) a party
     def party_interactions(self, action : str):
@@ -157,7 +176,8 @@ class App:
             if self.button == 0:
                 pyxel.quit()
             elif self.button == 1:
-                self.state = 1
+                if self.party_infos()["number"] != 0:
+                    self.state = 1
             elif self.button == 2:
                 action = "/create"
                 self.party_interactions(action)
