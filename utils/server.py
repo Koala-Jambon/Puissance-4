@@ -175,7 +175,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
                     utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
                     # Et on attend sa réponse
                     data = utils.recv_json(client_jouer)
-                time.sleep(0.5)
+                time.sleep(0.2)
 
             party[partie_id]["jeu"]["position"] = 0
             print(lobby[client_address]["pseudo"] + " Est sortie du /WAITGAME")
