@@ -407,7 +407,7 @@ class App:
                 # Connects to the lobby and then starts the game
 
 
-if __name__ == "__main__":
+def run():
     if os.name == "posix":
         os.system("clear")
     else:
@@ -416,7 +416,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.122.1", 62222))
+        client.connect(("172.16.50.253", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
