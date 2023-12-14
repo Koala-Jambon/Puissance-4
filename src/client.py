@@ -3,10 +3,6 @@
 import pyxel
 import os
 import itertools as tool
-import json
-import socket
-import rich
-
 # Files to import
 from utils import api
 from utils.utils import *
@@ -365,7 +361,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("127.0.0.1", 62222))
+        client.connect(("172.16.50.253", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
