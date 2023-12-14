@@ -57,7 +57,7 @@ def handle_client(client_jouer: socket.socket, client_address):
                 """
                 {"127.0.0.1": {"pseudo": "sd", "status": "disponible", "partie_id": null}}
                 """
-                to_return[joueur[0]] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
+                to_return[f"{joueur[0]}:{joueur[1]}"] = {"pseudo": lobby[joueur]["pseudo"], "status": lobby[joueur]["status"], "partie_id": lobby[joueur]["partie_id"]}
             print("Voici ce que l'on return à /lobbylist")
             rich.print(to_return)
             client_jouer.send(json.dumps(to_return).encode("utf-8"))
