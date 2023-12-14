@@ -23,7 +23,7 @@ party = {}
 def client_init(client_jouer: socket.socket, client_address: tuple):
     try:
         handle_client(client_jouer, client_address)
-    except OSError:
+    except OSError or KeyError or ValueError:
         print(Fore.RED + "Un client nous a quitté...")
         print(Style.RESET_ALL)
         if client_address in lobby:
@@ -145,6 +145,7 @@ def handle_client(client_jouer: socket.socket, client_address):
                     time.sleep(1)
                 jouer(p_id, client_jouer, client_address)
     print("Fermeture d'un client")
+    raise OSError
 
 
 def jouer(partie_id, client_jouer: socket.socket, client_address):
