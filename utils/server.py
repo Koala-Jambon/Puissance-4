@@ -171,7 +171,6 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
 
                 if party[partie_id]["jeu"]["position"] != position:
                     position = party[partie_id]["jeu"]["position"]
-                    print("LA POSITION A CHANGÉ:  " + str(position))
                     utils.send_json(client_jouer, {"message": "/waitgame", "position": position})
                     # Et on attend sa réponse
                     data = utils.recv_json(client_jouer)
@@ -182,7 +181,7 @@ def jouer(partie_id, client_jouer: socket.socket, client_address):
 
             if game.check_endgame():
                 print(f"La partie est fini pour {client_address} (DANS LA BOUCLE /WAIT)")
-                fin_partie(game, client_jouer)
+                fin_partie(game, client_jouer, client_address)
             else:
                 print(f"<--{client_address} peut JOUER-->")
                 client_jouer.send(json.dumps({"message": "/continue", "board": game.board}).encode("utf-8"))
