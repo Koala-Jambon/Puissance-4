@@ -52,12 +52,23 @@ class App:
             client.send(f"/lobby {self.nickname}".encode("utf-8"))
             data = client.recv(4096).decode("utf-8")
 
+            print("Debug :", data)
+            if data == f"{self.nickname} is connected to the lobby":
+                print("Connexion établie !")
+
             # We get the list of parties and players
             client.send(b"/lobbylist")
             data = client.recv(4096).decode("utf-8")
+            print("Liste des joueurs :")
+            rich.print_json(data)
+            print("-------------------")
 
             client.send(b"/partylist")
             data = client.recv(4096).decode("utf-8")
+            print("Liste des parties :")
+            rich.print_json(data)
+            print("-------------------")
+        
             self.state = 0
 
     # Draws the username chosen by the user
@@ -67,11 +78,13 @@ class App:
 
     # Waits for another player to connect
     def update_waiting_other_player(self):
+        print("Debug : Je suis passé par le state 4")
         if self.delay_to_draw == 2:
             data = {"message" : "/waitpeople"}
             while data["message"] == "/waitpeople":
                 client.send(f"/waitpeople".encode("utf-8"))
                 data = recv_json(client)
+                print("Debug :", data)
 
             self.game__init__(data["joueurs"],  # Ip List
                               data["you"],  # Ip of the computer which is running this code
@@ -94,9 +107,12 @@ class App:
         elif pyxel.btnp(pyxel.KEY_DOWN) and self.party_choice_number != self.party_infos()["number"]-1:
             self.party_choice_number += 1
         elif pyxel.btnp(pyxel.KEY_RETURN) and self.party_choice_number+1 in self.party_infos()["free"]:
+            print("Debug : La partie est free & tu a appuyé sur entré")
             action = f"/join {self.party_choice_number+1}"
             self.party_interactions(action)
-
+        elif pyxel.btnp(pyxel.KEY_RETURN):
+            print("Debug : La partie est full :", self.party_choice_number)
+    
     # Draws the menu of selection of a party
     def draw_choose_party(self):
         buttons_coords = {
@@ -123,9 +139,11 @@ class App:
 
     # Sends to the server what the user wants to do (Create/Join) a party
     def party_interactions(self, action : str):
+        print("Debug : Je veux faire " + action)
         client.send(f"{action}".encode("utf-8"))
         data = client.recv(4096).decode("utf-8")
 
+        print("Debug :", data)
         self.state = 4
         self.delay_to_draw = 0
 
@@ -183,10 +201,11 @@ class App:
                     # Waiting for the answer of the server
                     data = client.recv(4096).decode("utf-8")
                     data = json.loads(data)
+                    print(f'{data} quand on joue')
                     # Updates the board
                     self.game.board = data["board"]
                     if "/waitgame" in data["message"]:
-                        pass
+                        print('Debug : /waitgame')
                     else:
                         self.game.change_player_turn()
                         self.calculate_endgame(data)
@@ -194,8 +213,10 @@ class App:
             else:
                 # On attend le coup de l'autre joueur
                 send_json(client=client, data_dict={"message": "/waitgame", "board": self.game.board})
+                print("j'ai envoyé le message")
                 data = client.recv(4096).decode("utf-8")
                 data = json.loads(data)
+                print(f"Debug : |On attend le coup de l'autre| {data} ")
                 if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
                 else:
@@ -226,6 +247,7 @@ class App:
         client.send(b"/partylist")
         data = client.recv(4096).decode("utf-8")
         data = json.loads(data)
+        #print("Debug :", data)
         free_party_list = []
         empty_party_list = []
         for game_id in range(len(data)):
@@ -263,11 +285,13 @@ class App:
     # Tells to the user the result of the game
     def calculate_endgame(self, data: dict):
         if "/endgame" == data["message"]:
+            print('Debug : /endgame')
             if self.game.check_tie():
-                self.delay_to_draw = 0
-                self.state = 5
+                print("Draw")
             for func in ["check_victory_h", "check_victory_v", "check_victory_dp", "check_victory_dm"]:
                 if getattr(self.game, func)():
+                    print(f'{self.game.number_to_ip(getattr(self.game, func)())} a gagné !')
+                    print(self.game.victory_reason)
                     self.delay_to_draw = 0
                     self.state = 5
 
