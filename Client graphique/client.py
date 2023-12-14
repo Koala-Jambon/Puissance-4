@@ -1,4 +1,4 @@
-#Version : La meilleure de toute (qsdfqsfdfsqfmathsmathsmathsokdqsjk:mfjklmqsjdklfj)
+#Version : Beta
 # Modules to import
 import pyxel
 import os
@@ -220,6 +220,7 @@ class App:
                 if "/waitgame" == data["message"]:
                     self.choice_position = data["position"]+1
                 else:
+                    self.choice_position = 0
                     # Updates the board
                     self.game.board = data["board"]
                     # Checks the game has ended ; If yes then tells the user why
@@ -315,7 +316,7 @@ class App:
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
         for draw_coords in self.game.victory_reason:
-            pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
+            pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 60 / size, 11)
 
     def draw_text(self, text : str, coords : tuple):
         coords = list(coords)
@@ -389,7 +390,7 @@ if __name__ == "__main__":
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #print("Debug : Connexion au serveur...")
     try:
-        client.connect(("127.0.0.1", 62222))
+        client.connect(("172.16.122.1", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
