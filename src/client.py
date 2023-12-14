@@ -370,3 +370,7 @@ def run():
     #print("Debug : Connexion au lobby...")
 
     App(client)
+
+
+if __name__ == "__name__":
+    run()
