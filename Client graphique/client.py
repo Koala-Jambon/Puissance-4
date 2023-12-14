@@ -315,7 +315,7 @@ class App:
             if self.game.board[draw_y][draw_x] == 2:
                 pyxel.circ((150 * draw_x + 510) / size, (1005 - 150 * draw_y) / size, 70 / size, 10)
         for draw_coords in self.game.victory_reason:
-            pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 70 / size, 5)
+            pyxel.circ((150 * draw_coords[0] + 510) / size, (1005 - 150 * draw_coords[1]) / size, 60 / size, 11)
 
     def draw_text(self, text : str, coords : tuple):
         coords = list(coords)
