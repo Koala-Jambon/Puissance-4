@@ -242,7 +242,8 @@ while not error:
     client, client_address_while = sock.accept()
     try:
         threading.Thread(target=client_init, args=(client, client_address_while)).start()
-    except OSError:
+    except OSError or IndexError as e:
+        print(utils.error_log(e))
         client.close()
         print(Fore.RED + "Un thread nous a quitté")
         print(Style.RESET_ALL)
