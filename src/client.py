@@ -1,5 +1,3 @@
-# Version : La meilleure de toute (qsdfqsfdfsqfmathsmathsmathsokdqsjk:mfjklmqsjdklfj)
-# Modules to import
 import pyxel
 import os
 import itertools as tool
@@ -7,28 +5,27 @@ import json
 import socket
 import rich
 
-# Files to import
+# Files we have to import
 from utils import api
 from utils.utils import *
 
 # Size of the screen, can be wathever you want ; 1.5 is recommended
 size = 1.5
 
-
 class App:
 
     def __init__(self, client):
         self.client = client
-        self.delay_to_draw = 0
-        self.delay = 0
+        self.delay_to_draw = 0 # Variable used to create some delay in ordre of drawing things 
+        self.delay_end_game = 0 # Variable used to delay the restart of the App after a game
         self.state = 3  # State of the game ; Determines what the game has to draw/check
         self.party_choice_number = 0  # Number of the party you are trying to join
         self.nickname = ""  # Nickname chosen by the user ; By default empty
         self.button = 1  # The number of the button the user is hovering over
-        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game", "update_get_username",
-                            "update_waiting_other_player", "update_end_game"]
-        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", "draw_get_username",
-                          "draw_waiting_other_player", "draw_end_game"]
+        self.update_list = ["update_main_menu", "update_choose_party", "update_in_game",
+                            "update_get_username", "update_waiting_other_player", "update_end_game"]
+        self.draw_list = ["draw_main_menu", "draw_choose_party", "draw_in_game", 
+                          "draw_get_username", "draw_waiting_other_player", "draw_end_game"]
         pyxel.init(int(1920 / size), int(1080 / size), title=f"Koala-4", fps=30)
         pyxel.run(self.update, self.draw)
 
@@ -47,24 +44,14 @@ class App:
                              pyxel.KEY_U, pyxel.KEY_V, pyxel.KEY_W, pyxel.KEY_X, pyxel.KEY_Y, pyxel.KEY_Z]
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         for letter in range(26):
-            if pyxel.btnp(pyxel_key_letters[letter]) and pyxel.btn(pyxel.KEY_SHIFT) and len(self.nickname) < 12:
-                self.nickname = self.nickname + alphabet[letter].upper()
-            elif pyxel.btnp(pyxel_key_letters[letter]) and len(self.nickname) < 12:
+            if pyxel.btnp(pyxel_key_letters[letter]) and len(self.nickname) < 12:
                 self.nickname = self.nickname + alphabet[letter]
 
         if pyxel.btnp(pyxel.KEY_BACKSPACE):
             self.nickname = self.nickname[:-1]
+
         if pyxel.btnp(pyxel.KEY_RETURN):
             self.client.send(f"/lobby {self.nickname}".encode("utf-8"))
-            data = self.client.recv(4096).decode("utf-8")
-
-
-
-            # We get the list of parties and players
-            self.client.send(b"/lobbylist")
-            data = self.client.recv(4096).decode("utf-8")
-
-            self.client.send(b"/partylist")
             data = self.client.recv(4096).decode("utf-8")
             self.state = 0
 
@@ -75,7 +62,7 @@ class App:
 
     # Waits for another player to connect
     def update_waiting_other_player(self):
-        if self.delay_to_draw == 2:
+        if self.delay_to_draw == 10:
             data = {"message": "/waitpeople"}
             while data["message"] == "/waitpeople":
                 self.client.send(f"/waitpeople".encode("utf-8"))
@@ -90,7 +77,6 @@ class App:
         else:
             self.delay_to_draw += 1
 
-    # Draws a text telling the user to wait for another player
     def draw_waiting_other_player(self):
         self.draw_text("Waiting...", ("center", 0))
 
@@ -257,7 +243,6 @@ class App:
 
     # Draws the board in game
     def draw_in_game(self):
-        pyxel.cls(0)
         for draw_x, draw_y in tool.product(range(7), range(6)):
             pyxel.rect((150 * draw_x + 435) / size, (930 - 150 * draw_y) / size, 150 / size, 150 / size, 1)
             if self.game.board[draw_y][draw_x] == 0:
@@ -320,11 +305,11 @@ class App:
                     self.state = 5
 
     def update_end_game(self):
-        if self.delay != 120:
-            self.delay += 1
+        if self.delay_end_game != 120:
+            self.delay_end_game += 1
         else:
             self.delay_to_draw = 0
-            self.delay = 0
+            self.delay_end_game = 0
             self.state = 0  # State of the game ; Determines what the game has to draw/check
             self.party_choice_number = 0  # Number of the party you are trying to join
             self.button = 1  # The number of the button the user is hovering over
@@ -414,13 +399,12 @@ def run():
         os.system("cls")
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # print("Debug : Connexion au serveur...")
     try:
-        client.connect(("172.16.50.253", 62222))
+        client.connect(("172.16.122.1", 62222))
     except OSError:
         print("Cannot connect to the server ; Try updating ; Try later")
         exit()
 
-    # print("Debug : Connexion au lobby...")
-
     App(client)
+
+run()
